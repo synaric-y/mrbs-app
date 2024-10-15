@@ -71,6 +71,7 @@ export default {
     button: {
         confirm: '确认',
         reserve: '预订',
+        repeated_reserve: '循环定时预定',
         cancel: '取消',
         edit: '编辑'
     },

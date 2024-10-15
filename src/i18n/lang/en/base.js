@@ -71,6 +71,7 @@ export default {
     button: {
         confirm: 'Confirm',
         reserve: 'Reserve',
+        repeated_reserve: 'Repeated Reserve',
         cancel: 'Cancel',
         edit: 'Edit'
     },

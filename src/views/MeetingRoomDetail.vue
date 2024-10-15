@@ -4,6 +4,7 @@ import Header from "@/components/Header.vue";
 import Layout from "@/components/Layout.vue";
 import DateSelect from "@/components/DateSelect.vue";
 import TimeStepperScroll from "@/components/TimeStepperScroll.vue";
+import RepeatedReserveDialog from "@/components/RepeatedReserveDialog.vue";
 import {useRoute, useRouter} from 'vue-router';
 import {onMounted, ref} from "vue";
 import {
@@ -42,7 +43,7 @@ const minDate = ref(new Date())
 const maxDate = ref(new Date())
 maxDate.value.setDate(minDate.value.getDate() + 14)
 
-
+const showRepeatedReserveDialog = ref(false) // 周期会议对话框
 
 const room_id = ref(route.query.room_id)
 const room = ref({})
@@ -408,6 +409,7 @@ onMounted(()=>{
         <input :disabled="timelineDisabled" class="input" v-model="meetingTopic" :placeholder="$t('meeting.form.placeholder')"/>
       </div>
       <van-button :disabled="timelineDisabled" class="large-btn" color="#591bb7" type="primary" round size="large" @click="showReserveDialog" v-if="!entryId">{{ $t('button.reserve') }}</van-button>
+      <van-button :disabled="timelineDisabled" class="large-btn" color="#591bb7" type="primary" round size="large" @click="showRepeatedReserveDialog=true" v-if="!entryId">{{ $t('button.repeated_reserve') }}</van-button>
       <van-button class="large-btn" color="#bebebe" type="primary" round size="large" @click="returnToIndex" v-if="!entryId">{{ $t('button.cancel') }}</van-button>
       <van-button class="large-btn" color="#591bb7" type="primary" round size="large" @click="showCommonDialog('edit',editMeeting)" v-if="entryId">{{ $t('button.confirm') }}</van-button>
       <van-button class="large-btn" color="#bebebe" type="primary" round size="large" @click="showCommonDialog('cancel',cancelMeeting)" v-if="entryId">{{ $t('button.cancel') }}</van-button>
@@ -422,6 +424,8 @@ onMounted(()=>{
       </template>
     </van-date-picker>
   </van-popup>
+  <RepeatedReserveDialog v-if="showRepeatedReserveDialog" @confirm="showRepeatedReserveDialog=false" @close="showRepeatedReserveDialog=false"/>
+
 </template>
 
 <style scoped lang="scss">
