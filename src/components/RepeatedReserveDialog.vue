@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onBeforeUpdate } from 'vue';
+import { ref, onBeforeUpdate, reactive } from 'vue';
 import {ymdFormat} from '@/utils/timeTool.js'
 import { i18n } from '@/i18n/index';
 const dayMapping = ['day.sunday','day.monday','day.tuesday','day.wednesday','day.thursday','day.friday','day.saturday']
@@ -11,26 +11,18 @@ const emits = defineEmits(['confirm','close'])
 const minDate = ref(new Date())
 const maxDate = ref(new Date())
 maxDate.value.setDate(minDate.value.getDate() + 14)
-const showDateSelect = ref(false);
 
-const endDate = ref(new Date())
+const showDateSelect = ref(false);
 
 const onConfirmDate = (value) => {
   showDateSelect.value = false;
-  endDate.value = new Date(value.selectedValues[0]+'/'+value.selectedValues[1]+'/'+value.selectedValues[2])
+  form.rep_end_date = value.selectedValues[0]+'-'+value.selectedValues[1]+'-'+value.selectedValues[2]
 }
 
-const num = ref(1)
-const handleChange = (value) => {
-  console.log(value)
-}
-const list= ['a', 'b']
-const checked = ref([]);
 const checkboxRefs = ref([]);
 const toggle = (index) => {
   checkboxRefs.value[index].toggle();
 };
-
 onBeforeUpdate(() => {
   checkboxRefs.value = [];
 });
@@ -40,6 +32,13 @@ const stop_scroll_chaining=(e)=>{
   e.preventDefault();
   e.stopPropagation();
 }
+
+
+const form = reactive({
+  rep_interval: 1,
+  rep_day: [], //1~7
+  rep_end_date: ymdFormat(new Date()),
+})
 
 </script>
 
@@ -51,13 +50,13 @@ const stop_scroll_chaining=(e)=>{
 
         <div class="repeat">
           <div class="repeat-left">重复间隔为</div>
-          <van-stepper v-model="num" min="1" max="8" input-width="50px" button-size="30px" />
+          <van-stepper v-model="form.rep_interval" min="1" max="8" input-width="50px" button-size="30px" />
           <div class="repeat-right">周后的</div>
         </div>
 
 
         <div class="select-area">
-          <van-checkbox-group v-model="checked">
+          <van-checkbox-group v-model="form.rep_day">
             <van-cell-group inset>
               <van-cell
                   v-for="(item, index) in [0,1,2,3,4,5,6]"
@@ -88,14 +87,14 @@ const stop_scroll_chaining=(e)=>{
         <div class="end-date">
           <div class="title">结束{{$t('meeting.form.date')}}</div>
           <div class="form-item-right" @click="showDateSelect=true;">
-            <div class="text">{{ymdFormat(endDate)}}</div>
+            <div class="text">{{ form.rep_end_date }}</div>
             <van-icon name="arrow" />
           </div>
         </div>
 
         <div class="btns">
           <div class="btn" @click="$emit('close')">{{$t('button.cancel')}}</div>
-          <div class="btn btn-confirm" @click="$emit('confirm')">{{$t('button.confirm')}}</div>
+          <div class="btn btn-confirm" @click="$emit('confirm',form)">{{$t('button.confirm')}}</div>
         </div>
 
 

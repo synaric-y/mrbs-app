@@ -10,7 +10,7 @@ import {onMounted, ref} from "vue";
 import {
   calcTimeSpace,
   dayTag,
-  getZeroTimestamp,
+  getZeroTimestamp, hourFormat,
   hrToTimestamp,
   secondsInOneDay,
   timestampToHr,
@@ -91,7 +91,7 @@ const getMeetings = ()=>{
         const temp = res.data.areas
 
         for(let a of temp){
-          const j = a.rooms.findIndex((e)=>{return e.room_id === room_id.value})
+          const j = a.rooms.findIndex((e)=>{return e.room_id == room_id.value})
           console.log(j)
           if(j!==-1){
             room.value.entries = a.rooms[j].entries
@@ -101,7 +101,7 @@ const getMeetings = ()=>{
           }
         }
 
-        if(room.value.entries===undefined) room.value.entries = []
+        if(room.value.entries==undefined) room.value.entries = []
 
         loaded.value = true
         timelineDisabled.value = false
@@ -131,8 +131,11 @@ const getAllRoomList = async ()=>{
         .then((res) => {
           let areas = res.data.areas
 
+          console.log(areas)
+
           for (let a of areas) {
-            const j = a.rooms.findIndex((e) => {return e.room_id === room_id.value})
+            const j = a.rooms.findIndex((e) => {return e.room_id == room_id.value})
+            console.log(j)
             if (j !== -1) {
               room.value = a.rooms[j]
               area.value = a
@@ -179,7 +182,7 @@ const getMeetingById = ()=>{
 // 只留下和自己无关的会
 const removeEditingMeeting = ()=>{
   return new Promise((resolve, reject)=>{
-    const j = room.value.entries.findIndex((e) => {return e.entry_id === entryId})
+    const j = room.value.entries.findIndex((e) => {return e.entry_id == entryId})
     room.value.entries.splice(j,1)  // 直接赋值好像不能触发刷新
     resolve()
   })
@@ -216,7 +219,7 @@ const showCommonDialog = (type,nextFunc)=>{
 }
 
 const showReserveDialog=()=>{
-  if(!meetingTopic.value || meetingTopic.value.length===0){
+  if(!meetingTopic.value || meetingTopic.value.length==0){
     showToast(i18n.global.t('meeting.form.missing'),);
     return
   }
@@ -225,7 +228,7 @@ const showReserveDialog=()=>{
 
 const reserveMeeting=()=>{
 
-  if(!meetingTopic.value || meetingTopic.value.length===0){
+  if(!meetingTopic.value || meetingTopic.value.length==0){
     showToast(i18n.global.t('meeting.form.missing'),);
     return
   }
@@ -251,6 +254,119 @@ const reserveMeeting=()=>{
       .finally(()=>{
         returnToIndex()
       })
+}
+
+const convertToBinaryWithSundayLeft = (rep_day)=>{
+  let binaryRepresentation = 0;
+  rep_day.forEach(value => {
+    binaryRepresentation |= (1 << (7 - value));
+  });
+  return binaryRepresentation;
+}
+
+const repeatReserve=(form)=>{
+  showRepeatedReserveDialog.value=false;
+
+  console.log(form)
+
+  let pack = {
+    "id": 0,
+    "area_id": 20,
+    "area_name": "shanghai",
+    "room_id": 18,
+    "room_name": "TestA",
+    "rooms": [
+      18
+    ],
+    "name": "测试A",
+    "start_date": "2024-10-31",
+    "end_date": "2024-10-31",
+    "start_hour": "19:30",
+    "start_seconds": 1730374200,
+    "rep_end_date": "2024-11-08",
+    "end_hour": "20:00",
+    "end_seconds": 1730376000,
+    "description": "",
+    "repeat_week": "1",
+    "check_list": [],
+    "rep_opt": 48,
+    "rep_interval": 2,
+    "all_day": "",
+    "type": "E",
+    "original_room_id": 18,
+    "ical_uid": "1123123",
+    "ical_sequence": 1,
+    "ical_recur_id": "asdfa",
+    "allow_registration": "",
+    "registrant_limit": 10,
+    "registrant_limit_enabled": "1",
+    "registration_opens_value": 1,
+    "registration_open_units": "w",
+    "registration_open_enabled": "",
+    "registration_closes_value": 1,
+    "registration_closes_units": "w",
+    "registration_closes_enabled": "",
+    "rep_id": null,
+    "edit_series": 1,
+    "rep_type": 2,
+    "rep_day": [
+      "2",
+      "3"
+    ],
+    "month_type": 0,
+    "month_absolute": 2,
+    "month_relative_ord": "",
+    "month_relative_day": "",
+    "skip": 0,
+    "no_mail": 1,
+    "private": "",
+    "create_by": ""
+  }
+
+  const rep_day = form.rep_day
+
+  rep_day.forEach((item,idx,arr)=>{arr[idx]=item+''})
+
+  // 构建查询参数
+  const query = {
+    area_id: area.value.area_id,
+    area_name: area.value.area_name,
+    description: '',
+    room_id: room.value.room_id,
+    original_room_id: room.value.room_id,
+    room_name: room.value.room_name,
+    rooms: [room.value.room_id],
+    name: meetingTopic.value,
+    start_date: ymdFormat(new Date()),
+    start_hour: hourFormat(leftTime.value),
+    start_seconds: hrToTimestamp(currentDate.value,leftTime.value),
+    end_date: ymdFormat(new Date()),
+    end_hour: hourFormat(rightTime.value),
+    end_seconds: hrToTimestamp(currentDate.value,rightTime.value),
+    rep_end_date: form.rep_end_date,
+    rep_day: rep_day,
+    rep_opt: convertToBinaryWithSundayLeft(form.rep_day)
+  }
+
+  pack = {
+    ...pack,
+    ...query
+  }
+
+  console.log(pack)
+
+  editMeetingByIdApi(pack).then(res=>{
+
+    showToast(i18n.global.t('meeting.edit.success'))
+
+  }).catch(err=>{
+
+    showToast(i18n.global.t('meeting.edit.fail')+err)
+
+  }).finally(()=>{
+    router.replace({ path:'/my' }) //直接跳走
+  })
+
 }
 
 const editMeeting = ()=>{
@@ -424,7 +540,7 @@ onMounted(()=>{
       </template>
     </van-date-picker>
   </van-popup>
-  <RepeatedReserveDialog v-if="showRepeatedReserveDialog" @confirm="showRepeatedReserveDialog=false" @close="showRepeatedReserveDialog=false"/>
+  <RepeatedReserveDialog v-if="showRepeatedReserveDialog" @confirm="(form)=>{repeatReserve(form)}" @close="showRepeatedReserveDialog=false"/>
 
 </template>
 

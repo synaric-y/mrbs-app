@@ -2,13 +2,23 @@ import request from '@/utils/request';
 import axios from 'axios';
 
 
+
+/*
+* /call.php?act=get_info%2Findex
+/call.php?act=get_info%2Fget_all_rooms
+/call.php?act=get_info%2Fget_entry_by_creator
+/call.php?act=get_info%2Fget_entry_by_id
+/call.php?act=entry%2Fdel_entry
+/call.php?act=entry%2Fedit_entry_handler
+* */
+
 /**
  * 获取区域列表
  * @param query
  */
 export function getAreaListApi(query) {
     return request({
-        url: '/call.php?act=index',
+        url: '/call.php?act=get_info%2Findex',
         method: 'post',
         data: query,
     })
@@ -20,7 +30,7 @@ export function getAreaListApi(query) {
  */
 export function getAllRoomsApi(query) {
     return request({
-        url: '/call.php?act=get_all_rooms',
+        url: '/call.php?act=get_info%2Fget_all_rooms',
         method: 'post',
         data: query,
     })
@@ -62,7 +72,7 @@ export function loginApi(query){
  * */
 export function wxLoginApi(code) {
     return request({
-        url: '/call.php?act=wxwork_login&code='+code,
+        url: '/wxwork_login.php?code='+code,
         method: 'get',
     })
 }
@@ -72,7 +82,7 @@ export function wxLoginApi(code) {
  * */
 export function wxOauth2Url() {
     return request({
-        url: '/call.php?act=wxwork_login_url',
+        url: '/wxwork_login_url.php',
         method: 'post',
     })
 }
@@ -82,7 +92,7 @@ export function wxOauth2Url() {
  * */
 export function getMeetingsByCreatorApi() {
     return request({
-        url: '/call.php?act=get_entry_by_creator',
+        url: '/call.php?act=get_info%2Fget_entry_by_creator',
         method: 'post',
     })
 }
@@ -92,7 +102,7 @@ export function getMeetingsByCreatorApi() {
  * */
 export function getMeetingByIdApi(query) {
     return request({
-        url: '/call.php?act=get_entry_by_id',
+        url: '/call.php?act=get_info%2Fget_entry_by_id',
         method: 'post',
         data: query,
     })
@@ -103,7 +113,7 @@ export function getMeetingByIdApi(query) {
  * */
 export function cancelMeetingByIdApi(query) {
     return request({
-        url: '/call.php?act=del_entry',
+        url: '/call.php?act=entry%2Fdel_entry',
         method: 'post',
         data: query,
     })
@@ -114,7 +124,7 @@ export function cancelMeetingByIdApi(query) {
  * */
 export function editMeetingByIdApi(query) {
     return request({
-        url: '/call.php?act=edit_entry_handler',
+        url: '/call.php?act=entry%2Fedit_entry_handler',
         method: 'post',
         data: query,
     })

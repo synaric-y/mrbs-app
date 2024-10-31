@@ -111,7 +111,7 @@ const cancelMeeting = (entryId)=>{
         <van-tab v-for="(list,i) in reservationList" :title="$t(statusMapping[i])">
           <div class="meetings">
 
-            <div v-if="reservationList[i].length===0">{{$t("meeting.notify.none")}}</div>
+            <div v-if="reservationList[i].length==0">{{$t("meeting.notify.none")}}</div>
 <!--            注意主键-->
 
             <van-swipe-cell
@@ -133,7 +133,7 @@ const cancelMeeting = (entryId)=>{
                 </template>
             </van-swipe-cell>
             <ReservationCard
-                v-if="i===2"
+                v-if="i==2"
                 v-for="item in list"
                 :key="item.id"
                 :begTime="item.start_time"

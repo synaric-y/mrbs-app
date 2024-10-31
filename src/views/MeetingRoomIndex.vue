@@ -73,10 +73,10 @@ const getMeetings = () => {
         const temp = res.data.areas
 
         for (let area of temp) {
-          const i = areas.value.findIndex((e) => {return e.area_id === area.area_id}) // 大括号内一定要加return，否则一直返回-1
+          const i = areas.value.findIndex((e) => {return e.area_id == area.area_id}) // 大括号内一定要加return，否则一直返回-1
           if (i !== -1) {
             for (let room of area.rooms) {
-              const j = areas.value[i].rooms.findIndex((e) => {return e.room_id === room.room_id}) // 大括号内一定要加return，否则一直返回-1
+              const j = areas.value[i].rooms.findIndex((e) => {return e.room_id == room.room_id}) // 大括号内一定要加return，否则一直返回-1
               areas.value[i].rooms[j].entries = room.entries || []
             }
           }
@@ -129,9 +129,9 @@ const onManualSelectDate = () => {
 }
 
 const gotoMeetingDetail = (areaDisabled, roomDisabled, room_id) => {
-  if (areaDisabled === '1')
+  if (areaDisabled == '1')
     showToast(i18n.global.t('area.notify.disabled'));
-  else if (roomDisabled === '1')
+  else if (roomDisabled == '1')
     showToast(i18n.global.t('room.notify.disabled'));
   else router.push({path: '/detail', query: {room_id: room_id, time: currentDate.value.getTime()}});
 }
@@ -194,9 +194,9 @@ const onConfirm = ({ selectedOptions }) => {
 
       <div v-if="loaded">
 <!--        注意只有主键这样的key才能强制使子元素重绘-->
-        <div v-for="(area,i) in areas.filter((item)=>{return selectedArea==='all'||item.area_name===selectedArea})" :key="area.area_id">
+        <div v-for="(area,i) in areas.filter((item)=>{return selectedArea=='all'||item.area_name==selectedArea})" :key="area.area_id">
           <MeetingRoomCard class="card-container" v-for="(room,i) in area.rooms" :key="room.room_id"
-                           :status="(area.disabled==='1'||room.disabled==='1')?0:1"
+                           :status="(area.disabled=='1'||room.disabled=='1')?0:1"
                            :title="room.room_name || (room.entries && room.entries[0].room_name)"
                            :capacity="room.capacity"
                            :position="area.area_name"
