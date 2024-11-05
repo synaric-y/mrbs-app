@@ -2,7 +2,17 @@
 import { ref, onBeforeUpdate, reactive } from 'vue';
 import {ymdFormat} from '@/utils/timeTool.js'
 import { i18n } from '@/i18n/index';
-const dayMapping = ['day.sunday','day.monday','day.tuesday','day.wednesday','day.thursday','day.friday','day.saturday']
+import {showToast} from "vant";
+
+const check_box_list = [
+  { label: 'day.monday', value: '1' },
+  { label: 'day.tuesday', value: '2' },
+  { label: 'day.wednesday', value: '3' },
+  { label: 'day.thursday', value: '4' },
+  { label: 'day.friday', value: '5' },
+  { label: 'day.saturday', value: '6' },
+  { label: 'day.sunday', value: '7' },
+]
 
 const props = defineProps([])
 const emits = defineEmits(['confirm','close'])
@@ -40,6 +50,20 @@ const form = reactive({
   rep_end_date: ymdFormat(new Date()),
 })
 
+const validate = ()=>{
+  if(form.rep_interval<1 || form.rep_interval>8){
+    showToast(i18n.global.t('meeting.form.rep_interval_fail'),);
+    return
+  }
+  if(!form.rep_day || form.rep_day.length===0){
+    showToast(i18n.global.t('meeting.form.rep_day_fail'),);
+    return
+  }
+
+
+  emits('confirm',form)
+}
+
 </script>
 
 <template>
@@ -59,22 +83,22 @@ const form = reactive({
           <van-checkbox-group v-model="form.rep_day">
             <van-cell-group inset>
               <van-cell
-                  v-for="(item, index) in [0,1,2,3,4,5,6]"
+                  v-for="(item,index) in check_box_list"
                   clickable
-                  :key="item"
+                  :key="item.value"
                   @click="toggle(index)"
               >
                 <template #title>
                   <div class="title-wrapper">
                     <van-checkbox
-                        :name="item"
+                        :name="item.value"
                         :ref="el => checkboxRefs[index] = el"
                         shape="square"
                         checked-color="#591bb7"
                         icon-size="16px"
                         @click.stop
                     />
-                    <div class="title">{{$t(dayMapping[item])}}</div>
+                    <div class="title">{{$t(item.label)}}</div>
                   </div>
                 </template>
 
@@ -94,7 +118,7 @@ const form = reactive({
 
         <div class="btns">
           <div class="btn" @click="$emit('close')">{{$t('button.cancel')}}</div>
-          <div class="btn btn-confirm" @click="$emit('confirm',form)">{{$t('button.confirm')}}</div>
+          <div class="btn btn-confirm" @click="validate()">{{$t('button.confirm')}}</div>
         </div>
 
 

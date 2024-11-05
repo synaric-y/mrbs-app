@@ -44,6 +44,9 @@ export default {
             topic: '会议主题',
             placeholder: '请输入',
             missing: '必须输入会议主题！',
+            rep_interval: '重复周数',
+            rep_interval_fail: '重复周数格式错误',
+            rep_day_fail: '请选择至少一个重复日期',
         },
         notify:{
             none: '暂无会议',
@@ -53,7 +56,9 @@ export default {
             title: '提示',
             message: '确认预定会议?',
             success: '会议预订成功！',
-            fail: '会议预订失败！'
+            fail: '会议预订失败！',
+            repeat_success: '循环会议创建成功！',
+            repeat_fail: '循环会议创建失败！',
         },
         edit:{
             title: '提示',

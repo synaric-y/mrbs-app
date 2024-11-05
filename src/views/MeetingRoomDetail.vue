@@ -13,6 +13,7 @@ import {
   getZeroTimestamp, hourFormat,
   hrToTimestamp,
   secondsInOneDay,
+  SEC_PER_MIN,
   timestampToHr,
   ymdFormat
 } from '@/utils/timeTool.js'
@@ -226,6 +227,15 @@ const showReserveDialog=()=>{
   showCommonDialog('reserve',reserveMeeting)
 }
 
+const showRepeatReserveDialog=()=>{
+  if(!meetingTopic.value || meetingTopic.value.length==0){
+    showToast(i18n.global.t('meeting.form.missing'),);
+    return
+  }
+  showRepeatedReserveDialog.value = true
+
+}
+
 const reserveMeeting=()=>{
 
   if(!meetingTopic.value || meetingTopic.value.length==0){
@@ -265,7 +275,19 @@ const convertToBinaryWithSundayLeft = (rep_day)=>{
 }
 
 const repeatReserve=(form)=>{
-  showRepeatedReserveDialog.value=false;
+
+  // 校验
+  if(!meetingTopic.value || meetingTopic.value.length==0){ // 主题
+    showToast(i18n.global.t('meeting.form.missing'),);
+    return
+  }
+  // TODO: 更多的校验
+
+
+
+
+
+
 
   console.log(form)
 
@@ -357,14 +379,16 @@ const repeatReserve=(form)=>{
 
   editMeetingByIdApi(pack).then(res=>{
 
-    showToast(i18n.global.t('meeting.edit.success'))
+    showToast(i18n.global.t('meeting.reserve.repeat_success'))
+    // router.replace({ path:'/my' }) //直接跳走
 
   }).catch(err=>{
 
-    showToast(i18n.global.t('meeting.edit.fail')+err)
+    showToast(i18n.global.t('meeting.reserve.repeat_fail')+err)
 
   }).finally(()=>{
-    router.replace({ path:'/my' }) //直接跳走
+    showRepeatedReserveDialog.value=false;
+    // router.replace({ path:'/my' }) //直接跳走
   })
 
 }
@@ -510,7 +534,7 @@ onMounted(()=>{
           v-model:leftHandle="leftTime"
           v-model:rightHandle="rightTime"
           v-model:disabled="timelineDisabled"
-          :scale="15"
+          :scale="area.resolution? (area.resolution/SEC_PER_MIN) : 30"
       />
 
       <div class="form-item">
@@ -525,7 +549,7 @@ onMounted(()=>{
         <input :disabled="timelineDisabled" class="input" v-model="meetingTopic" :placeholder="$t('meeting.form.placeholder')"/>
       </div>
       <van-button :disabled="timelineDisabled" class="large-btn" color="#591bb7" type="primary" round size="large" @click="showReserveDialog" v-if="!entryId">{{ $t('button.reserve') }}</van-button>
-      <van-button :disabled="timelineDisabled" class="large-btn" color="#591bb7" type="primary" round size="large" @click="showRepeatedReserveDialog=true" v-if="!entryId">{{ $t('button.repeated_reserve') }}</van-button>
+      <van-button :disabled="timelineDisabled" class="large-btn" color="#591bb7" type="primary" round size="large" @click="showRepeatReserveDialog" v-if="!entryId">{{ $t('button.repeated_reserve') }}</van-button>
       <van-button class="large-btn" color="#bebebe" type="primary" round size="large" @click="returnToIndex" v-if="!entryId">{{ $t('button.cancel') }}</van-button>
       <van-button class="large-btn" color="#591bb7" type="primary" round size="large" @click="showCommonDialog('edit',editMeeting)" v-if="entryId">{{ $t('button.confirm') }}</van-button>
       <van-button class="large-btn" color="#bebebe" type="primary" round size="large" @click="showCommonDialog('cancel',cancelMeeting)" v-if="entryId">{{ $t('button.cancel') }}</van-button>

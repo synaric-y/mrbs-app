@@ -1,6 +1,7 @@
 
 const millsInOneDay = 3600*24*1000  // 一天的毫秒数
 const secondsInOneDay = 3600*24 // 一天的秒数
+const SEC_PER_MIN = 60 // 一分钟的秒数
 const tagMapping = ['day.yesterday','day.today','day.tomorrow']
 const dayMapping = ['day.sunday','day.monday','day.tuesday','day.wednesday','day.thursday','day.friday','day.saturday']
 import { i18n } from '@/i18n/index';
@@ -239,6 +240,7 @@ function getNearestScale(fl,lb,ub,scale){
 export {
     millsInOneDay,
     secondsInOneDay,
+    SEC_PER_MIN,
     begEndTime,
     generateTimeSequence,
     hourFormat,
