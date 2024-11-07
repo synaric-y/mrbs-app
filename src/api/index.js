@@ -1,5 +1,6 @@
 import request from '@/utils/request';
 import axios from 'axios';
+import dayjs from "dayjs";
 
 
 
@@ -25,6 +26,43 @@ export function getAreaListApi(query) {
 }
 
 /**
+ * 所有会议
+ * @param query
+ */
+export function getAllMeetingsApi(query) {
+    return request({
+        url: '/call.php?act=get_info%2Findex',
+        method: 'post',
+        data: query,
+    })
+}
+
+/**
+ * 一个房间内的所有会议
+ * @param currentDate 当前js时间对象
+ * @param id 房间id
+ */
+export function getAllMeetingsByRoomApi(currentDate,id) {
+
+    const dayObj = dayjs(currentDate || new Date())
+
+    const today = dayObj.startOf('day').unix()
+    const todayEnd = dayObj.endOf('day').unix()
+
+    return request({
+        url: '/call.php?act=get_info%2Findex',
+        method: 'post',
+        data: {
+            end_time: todayEnd,
+            start_time: today,
+            timezone: "Asia/Shanghai",
+            id: id,
+            type: "all"
+        },
+    })
+}
+
+/**
  * 获取区域列表（无条件，不含会议信息）
  * @param query
  */
@@ -35,6 +73,28 @@ export function getAllRoomsApi(query) {
         data: query,
     })
 }
+
+/**
+ * 获取单个区域
+ * @param query
+ */
+export function getAreaDetailApi(query) {
+    return request({
+        url: '/call.php?act=get_info%2Fget_all_rooms',
+        method: 'post',
+        data: {
+            "end_time": 1730908799,
+            "start_time": 1730822400,
+            "timezone": "Asia/Shanghai",
+            "id": "20",
+            "type": "area",
+            ...query
+        }
+    })
+}
+
+
+
 
 /**
  * 测试
@@ -90,10 +150,16 @@ export function wxOauth2Url() {
 /**
  * 我的
  * */
-export function getMeetingsByCreatorApi() {
+export function getMeetingsByCreatorApi(data) {
     return request({
         url: '/call.php?act=get_info%2Fget_entry_by_creator',
         method: 'post',
+        data:{
+            "type":'all',
+            "pagesize": 20,
+            "pagenum": 1,
+            ...data
+        }
     })
 }
 
@@ -104,7 +170,7 @@ export function getMeetingByIdApi(query) {
     return request({
         url: '/call.php?act=get_info%2Fget_entry_by_id',
         method: 'post',
-        data: query,
+        data: {...query, is_series: 0},
     })
 }
 

@@ -11,7 +11,7 @@ const check_box_list = [
   { label: 'day.thursday', value: '4' },
   { label: 'day.friday', value: '5' },
   { label: 'day.saturday', value: '6' },
-  { label: 'day.sunday', value: '7' },
+  { label: 'day.sunday', value: '0' },
 ]
 
 const props = defineProps([])

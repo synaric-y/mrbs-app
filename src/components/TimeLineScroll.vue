@@ -10,6 +10,8 @@ import {showToast} from 'vant';
 import 'vant/es/toast/style'
 import SvgIcon from "@/components/SvgIcon.vue";
 import { i18n } from '@/i18n/index';
+import _ from "lodash";
+
 
 const fringe = 0 // 左右两边的安全区
 
@@ -17,7 +19,7 @@ const props = defineProps(['lb','ub','meetings','currentDate','scale','full'])
 const emits = defineEmits(['update:full','clicked']) // 双向绑定
 // 转换成ref变量
 const scaleFloat = ref(props.scale / 60) // 30分钟-》0.5 15分钟-》0.25
-const timeTable = ref(props.meetings);
+const timeTable = ref([]);
 const span = ref(props.ub-props.lb)
 const hrArray = ref([])
 
@@ -27,12 +29,23 @@ onMounted(()=>{
   // 初始化刻度
   hrArray.value = generateTimeSequence(props.lb,props.ub)
 
+  // console.log(timeTable.value)
+
   // 处理每个会议的开始结束时间，转为24小时制
-  for(let i =0; i<timeTable.value.length; i++){
-    const temp = begEndTime(timeTable.value[i].duration)
-    timeTable.value[i].leftHr = temp[0]
-    timeTable.value[i].rightHr = temp[1]
-  }
+  // for(let i =0; i<props.meetings.length; i++){
+  //   const temp = begEndTime(timeTable.value[i].duration)
+  //   timeTable.value[i].leftHr = temp[0]
+  //   timeTable.value[i].rightHr = temp[1]
+  // }
+  timeTable.value = []
+  _.forEach(props.meetings, (meeting)=>{
+    const temp = begEndTime(meeting.duration)
+    timeTable.value.push({
+      leftHr: temp[0],
+      rightHr: temp[1],
+      status: meeting.status
+    })
+  })
 
   // 如果是今天，将先前的几个小时清掉
   invalidatePast()

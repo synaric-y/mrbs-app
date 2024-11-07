@@ -23,7 +23,8 @@ import {
   editMeetingByIdApi,
   getAllRoomsApi,
   getAreaListApi,
-  getMeetingByIdApi
+  getMeetingByIdApi,
+  getAllMeetingsApi
 } from "@/api/index.js";
 import {closeDialog, showConfirmDialog, showNotify, showToast} from "vant";
 import 'vant/es/toast/style'
@@ -86,7 +87,7 @@ const getMeetings = ()=>{
   return new Promise((resolve, reject) => {
 
     // 发请求
-    getAreaListApi(temp)
+    getAllMeetingsApi(temp)
       .then((res) => {
         // 重新赋值
         const temp = res.data.areas
@@ -255,14 +256,14 @@ const reserveMeeting=()=>{
   bookMeetingApi(query)
       .then(res=>{
         showToast(i18n.global.t('meeting.reserve.success'));
-
+        returnToIndex()
       })
       .catch(error=>{
         showNotify({type:'danger',message:i18n.global.t('meeting.reserve.fail')+error});
 
       })
       .finally(()=>{
-        returnToIndex()
+        // returnToIndex()
       })
 }
 
@@ -379,8 +380,18 @@ const repeatReserve=(form)=>{
 
   editMeetingByIdApi(pack).then(res=>{
 
+    const code = res.code
+
+    console.log(res)
+
+    if(code!==0){
+      throw new Error('会议预约失败')
+    }
+
     showToast(i18n.global.t('meeting.reserve.repeat_success'))
-    // router.replace({ path:'/my' }) //直接跳走
+    returnToIndex()
+
+
 
   }).catch(err=>{
 
@@ -388,7 +399,7 @@ const repeatReserve=(form)=>{
 
   }).finally(()=>{
     showRepeatedReserveDialog.value=false;
-    // router.replace({ path:'/my' }) //直接跳走
+
   })
 
 }

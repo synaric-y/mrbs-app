@@ -3,15 +3,15 @@ import {onMounted, ref, computed} from "vue";
 import InfoHeader from "@/components/InfoHeader.vue";
 import TimeLineScroll from "@/components/TimeLineScroll.vue";
 
-const props = defineProps(['title', 'status', 'position', 'capacity', 'facilities', 'timeTable', 'startTime', 'endTime', 'currentDate'])
+const props = defineProps(['title', 'disabled', 'position', 'capacity', 'facilities', 'timeTable', 'startTime', 'endTime', 'currentDate'])
 
 const full = ref(false)
 
 const calcTagClass = computed(() => {
-  return 'tag ' + (full.value ? 'tag-full' : (props.status ? 'tag-available' : 'tag-disabled'))
+  return 'tag ' + (full.value ? 'tag-full' : (props.disabled ? 'tag-disabled' : 'tag-available'))
 })
 const calcTagText = computed(() => {
-  return 'room.status.' + (full.value ? 'full' : (props.status ? 'available' : 'disabled'))
+  return 'room.status.' + (full.value ? 'full' : (props.disabled ? 'disabled' : 'available'))
 })
 
 </script>

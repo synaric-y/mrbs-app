@@ -2,7 +2,7 @@
 import {computed, onMounted, ref, watch} from "vue";
 import MeetingRoomCard from "@/components/MeetingRoomCard.vue";
 import axios from "axios";
-import {getAllRoomsApi, getAreaListApi} from "@/api/index.js";
+import {getAllRoomsApi, getAreaListApi, getAllMeetingsApi} from "@/api/index.js";
 import {i18n} from '@/i18n/index';
 import {showNotify} from 'vant';
 import 'vant/es/notify/style' // 样式
@@ -23,33 +23,31 @@ import DateSelect from "@/components/DateSelect.vue";
 import LanguageSelect from "@/components/LanguageSelect.vue";
 import {getZeroTimestamp, secondsInOneDay,calcTimeSpace,} from "@/utils/timeTool.js";
 import SvgIcon from "@/components/SvgIcon.vue";
+import dayjs from "dayjs";
+import _ from "lodash";
 
 // 全局路由
 const router = useRouter();
 const route = useRoute()
 
-
 const currentDate = ref(route.query.time ? new Date(parseInt(route.query.time)) : new Date())
 
-const areas = ref([])
-const areaSet = ref([])
+// 区域总表
+const areaList = ref([])
+const areaOptions = ref([]) // 表单
+
+
+// 加载完成标识
 const loaded = ref(false)
 
-const initAreaSet = ()=>{
-  return new Promise((resolve, reject)=>{
-    for(let area of areas.value){
-      areaSet.value.push({text:area.area_name,value:area.area_name})
-    }
-    areaSet.value.unshift({text:i18n.global.t('area.location.all'),value:'all'})
-    resolve()
-  })
-}
 
 const getMeetings = () => {
   loaded.value = false
 
-  const today = getZeroTimestamp(currentDate.value || new Date())
-  const todayEnd = today + secondsInOneDay - 1
+  const dayObj = dayjs(currentDate.value || new Date())
+
+  const today = dayObj.startOf('day').unix()
+  const todayEnd = dayObj.endOf('day').unix()
 
   // 构造查询数据
   const temp = {
@@ -60,68 +58,41 @@ const getMeetings = () => {
     type: "all"
   }
 
-  // 清空会议
-  for (let i = 0; i < areas.value.length; i++)
-    for (let j = 0; j < areas.value[i].rooms.length; j++)
-      areas.value[i].rooms[j].entries = []
-
+  console.log(temp)
 
   return new Promise((resolve, reject)=>{
-    getAreaListApi(temp)
-      .then((res) => {
+    getAllMeetingsApi(temp)
+      .then(({data}) => {
         // 重新赋值
-        const temp = res.data.areas
+        areaList.value = data.areas
 
-        for (let area of temp) {
-          const i = areas.value.findIndex((e) => {return e.area_id == area.area_id}) // 大括号内一定要加return，否则一直返回-1
-          if (i !== -1) {
-            for (let room of area.rooms) {
-              const j = areas.value[i].rooms.findIndex((e) => {return e.room_id == room.room_id}) // 大括号内一定要加return，否则一直返回-1
-              areas.value[i].rooms[j].entries = room.entries || []
-            }
-          }
-        }
+        // 表单
+        areaOptions.value.push({ // 全部
+          text:i18n.global.t('area.location.all'),
+          value:'all'
+        })
+        _.forEach(areaList.value,(item)=>{
+          areaOptions.value.push({
+            text: item.area_name,
+            value: item.area_name
+          })
+        })
+
 
         loaded.value = true
         resolve()
       })
       .catch(err => {
-        throw new Error("未知异常" + err.message);
+        showNotify({ type: 'danger', message: err.message })
+        reject("未知异常" + err.message)
       })
   })
 
 }
 
 
-const getAllRoomList = ()=>{
-
-  loaded.value = false
-
-  // 构造查询数据
-  const temp = {
-    type: "all"
-  }
-
-  return new Promise((resolve, reject) => {
-    getAllRoomsApi(temp)
-      .then((res) => {
-        areas.value = res.data.areas
-        resolve()
-      })
-      .catch(err => {
-        throw new Error("未知异常" + err.message);
-      })
-
-  });
-}
-
-
 onMounted(() => {
-  getAllRoomList()
-      .then(getMeetings)
-      .then(initAreaSet)
-      .catch(err=>{showNotify({ type: 'danger', message: err.message })})
-
+  getMeetings()
 })
 
 const onManualSelectDate = () => {
@@ -129,9 +100,9 @@ const onManualSelectDate = () => {
 }
 
 const gotoMeetingDetail = (areaDisabled, roomDisabled, room_id) => {
-  if (areaDisabled == '1')
+  if (areaDisabled)
     showToast(i18n.global.t('area.notify.disabled'));
-  else if (roomDisabled == '1')
+  else if (roomDisabled)
     showToast(i18n.global.t('room.notify.disabled'));
   else router.push({path: '/detail', query: {room_id: room_id, time: currentDate.value.getTime()}});
 }
@@ -143,6 +114,14 @@ const onConfirm = ({ selectedOptions }) => {
   showPicker.value = false;
   selectedArea.value = selectedOptions[0].value;
 };
+
+const filteredArea = computed(() => {
+  // 必须有一个返回值return
+  return areaList.value.filter((item)=>{
+    return selectedArea.value==='all' || item.area_name===selectedArea.value
+  })
+
+})
 
 </script>
 
@@ -194,16 +173,16 @@ const onConfirm = ({ selectedOptions }) => {
 
       <div v-if="loaded">
 <!--        注意只有主键这样的key才能强制使子元素重绘-->
-        <div v-for="(area,i) in areas.filter((item)=>{return selectedArea=='all'||item.area_name==selectedArea})" :key="area.area_id">
-          <MeetingRoomCard class="card-container" v-for="(room,i) in area.rooms" :key="room.room_id"
-                           :status="(area.disabled=='1'||room.disabled=='1')?0:1"
-                           :title="room.room_name || (room.entries && room.entries[0].room_name)"
+        <div v-for="area in filteredArea" :key="area.area_id">
+          <MeetingRoomCard class="card-container" v-for="room in area.rooms" :key="room.room_id"
+                           :disabled="area.disabled || room.disabled"
+                           :title="room.room_name"
                            :capacity="room.capacity"
                            :position="area.area_name"
                            :facilities="room.description||''"
                            :timeTable="room.entries||[]"
-                           :startTime="area.morningstarts?parseInt(area.morningstarts):(area.start_time?calcTimeSpace(area.start_time):6)"
-                           :endTime="area.eveningends?parseInt(area.eveningends):(area.end_time?calcTimeSpace(area.end_time):21)"
+                           :startTime="area.morningstarts || 6"
+                           :endTime="area.eveningends || 21"
                            :currentDate="currentDate"
                            @click="gotoMeetingDetail(area.disabled,room.disabled,room.room_id)"
           />
@@ -214,7 +193,7 @@ const onConfirm = ({ selectedOptions }) => {
   </Layout>
   <van-popup v-model:show="showPicker" round position="bottom">
     <van-picker
-        :columns="areaSet"
+        :columns="areaOptions"
         @cancel="showPicker = false"
         @confirm="onConfirm"
     >
