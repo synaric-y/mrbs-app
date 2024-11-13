@@ -31,7 +31,7 @@ html{
   padding: 0;
   margin: 0;
   width: 100%;
-  background-color: var(--color-background);
+  background-color: var(--color-background-soft);
   box-sizing: border-box;
 
   .header-wrapper {
@@ -44,7 +44,7 @@ html{
 
   .content-wrapper {
     padding: 1rem 2rem 1rem 1.5rem;
-    background-color: var(--color-background-content);
+    background-color: var(--van-tabs-nav-background);
     box-sizing: border-box;
     min-height: 100vh;
   }

@@ -36,14 +36,14 @@ import SvgIcon from "@/components/SvgIcon.vue";
     padding-top: 1rem;
 
     .title{
-      color: var(--color-primary-text);
+      color: var(--color-heading);
       font-weight: 700;
       font-size: 1rem;
     }
   }
 
   .info-wrapper{
-    color: var(--color-regular-text);
+    color: var(--color-text);
     display: flex;
     align-items: center;
     gap: 1.3rem;

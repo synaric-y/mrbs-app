@@ -125,8 +125,7 @@ const validate = ()=>{
       </div>
     </div>
     <van-popup v-model:show="showDateSelect" position="bottom">
-      <van-date-picker @confirm="onConfirmDate" @cancel="showDateSelect = false" :min-date="minDate"
-                       :max-date="maxDate">
+      <van-date-picker @confirm="onConfirmDate" @cancel="showDateSelect = false" :min-date="minDate">
         <template #confirm>
           <div style="color:#591BB7">{{$t('button.confirm')}}</div>
         </template>
@@ -140,14 +139,14 @@ const validate = ()=>{
 .wrapper{
   width: 100%;
   height: 100%;
-  background-color: rgba(0,0,0,.3);
+  background-color: var(--color-background-mute);
   display: flex;
   justify-content: center;
   align-items: center;
 
   .content{
     width: 90%;
-    background-color: #fff;
+    background-color: var(--van-cell-background);
     border-radius: 0.2rem;
     padding-top: 0.5rem;
 
@@ -155,14 +154,14 @@ const validate = ()=>{
       padding-left: 32px;
       font-weight: 700;
       font-size: 1rem;
-      color: #333;
+      color: var(--color-heading);
       line-height: 3;
     }
 
     .repeat{
       padding-left: 32px;
       font-size: 0.9rem;
-      color: #666;
+      color: var(--color-regular-text);
       display: flex;
       gap: 0.5rem;
       align-items: center;
@@ -175,7 +174,7 @@ const validate = ()=>{
       gap: 0.5rem;
 
       .title{
-        color: #333;
+        color: var(--color-regular-text);
         font-size: 0.8rem;
       }
     }
@@ -189,12 +188,12 @@ const validate = ()=>{
 
       .title{
         font-weight: 700;
-        color: #333;
+        color: var(--color-regular-text);
         line-height: 4;
       }
 
       .form-item-right{
-        color: #555;
+        color: var(--color-regular-text);
         display: flex;
         gap: 0.5rem;
         align-items: center;
@@ -204,7 +203,7 @@ const validate = ()=>{
     .btns{
       display: flex;
       margin-top: 1rem;
-      border-top: 0.05rem solid #eee;
+      border-top: 0.05rem solid var(--color-border);
 
       .btn{
         flex:1;
@@ -213,7 +212,7 @@ const validate = ()=>{
       }
 
       .btn-confirm{
-        color: #591BB7;
+        color: var(--color-primary);
       }
     }
   }

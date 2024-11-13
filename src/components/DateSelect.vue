@@ -346,15 +346,18 @@ const onTransitionEnd = ()=>{
     </div>
   </div>
   <van-calendar class="van-safe-area-bottom"
+                style="color:var(--van-text-color)"
                 v-model:show="showDateSelect"
                 :min-date="minDate"
                 :max-date="maxDate"
+                :default-date="currentDate"
                 @confirm="onConfirmDate"
                 color="#591bb7"/>
 
 </template>
 
 <style scoped lang="scss">
+
 .date-wrapper{
   display: flex;
   flex-direction: row;

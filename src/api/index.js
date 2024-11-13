@@ -63,6 +63,17 @@ export function getAllMeetingsByRoomApi(currentDate,id) {
 }
 
 /**
+ * 获取区域列表
+ * @param query
+ */
+export function getAllAreasApi(query) {
+    return request({
+        url: '/call.php?act=get_info%2Fget_all_area',
+        method: 'post',
+    })
+}
+
+/**
  * 获取区域列表（无条件，不含会议信息）
  * @param query
  */
@@ -70,7 +81,11 @@ export function getAllRoomsApi(query) {
     return request({
         url: '/call.php?act=get_info%2Fget_all_rooms',
         method: 'post',
-        data: query,
+        data: {
+            type: 'area',
+            id: 20,
+            ...query
+        },
     })
 }
 
@@ -155,8 +170,7 @@ export function getMeetingsByCreatorApi(data) {
         url: '/call.php?act=get_info%2Fget_entry_by_creator',
         method: 'post',
         data:{
-            "type":'all',
-            "pagesize": 20,
+            "pagesize": 10,
             "pagenum": 1,
             ...data
         }
@@ -170,7 +184,7 @@ export function getMeetingByIdApi(query) {
     return request({
         url: '/call.php?act=get_info%2Fget_entry_by_id',
         method: 'post',
-        data: {...query, is_series: 0},
+        data: {is_series: 0,...query},
     })
 }
 
@@ -192,6 +206,54 @@ export function editMeetingByIdApi(query) {
     return request({
         url: '/call.php?act=entry%2Fedit_entry_handler',
         method: 'post',
-        data: query,
+        data:
+        {
+        "area_id": 20,
+        "area_name": "shanghai",
+        "room_id": 18,
+        "room_name": "TestA",
+        "rooms": [
+            18
+        ],
+        "name": "小小王的会",
+        "start_date": "2024-11-13",
+        "start_hour": "19:30",
+        "start_seconds": 1731497400,
+        "end_date": "2024-11-13",
+        "end_hour": "19:45",
+        "end_seconds": 1731498300,
+        "description": "",
+        "repeat_week": "1",
+        "check_list": [],
+        "rep_end_date": "",
+        "all_day": "",
+        "type": "E",
+        "original_room_id": 18,
+        "ical_uid": "1123123",
+        "ical_sequence": 1,
+        "ical_recur_id": "asdfa",
+        "allow_registration": "",
+        "registrant_limit": 10,
+        "registrant_limit_enabled": "1",
+        "registration_opens_value": 1,
+        "registration_open_units": "w",
+        "registration_open_enabled": "",
+        "registration_closes_value": 1,
+        "registration_closes_units": "w",
+        "registration_closes_enabled": "",
+        "rep_id": null,
+        "edit_series": 0,
+        "rep_type": 0,
+        "rep_day": [],
+        "rep_interval": 1,
+        "month_type": 0,
+        "month_absolute": 2,
+        "month_relative_ord": "",
+        "month_relative_day": "",
+        "skip": 0,
+        "no_mail": 1,
+        "private": "",
+        ...query
+        },
     })
 }

@@ -2,16 +2,35 @@
 import {onMounted, ref, computed} from "vue";
 import InfoHeader from "@/components/InfoHeader.vue";
 import TimeLineScroll from "@/components/TimeLineScroll.vue";
+import dayjs from "dayjs";
 
 const props = defineProps(['title', 'disabled', 'position', 'capacity', 'facilities', 'timeTable', 'startTime', 'endTime', 'currentDate'])
 
 const full = ref(false)
 
+const hr21 = dayjs().startOf('day').add(props.endTime, 'hours')
+const hr6 = dayjs().startOf('day').add(props.startTime, 'hours')
+
+const overdue = ref(dayjs().isAfter(hr21) || dayjs().isBefore(hr6))
+
 const calcTagClass = computed(() => {
-  return 'tag ' + (full.value ? 'tag-full' : (props.disabled ? 'tag-disabled' : 'tag-available'))
+
+  if(overdue.value || full.value) return 'tag tag-full'
+
+  if(props.disabled) return 'tag tag-disabled'
+
+  return 'tag tag-available'
+
 })
 const calcTagText = computed(() => {
-  return 'room.status.' + (full.value ? 'full' : (props.disabled ? 'disabled' : 'available'))
+
+  if(overdue.value) return 'room.status.not_in_service'
+
+  if(full.value) return 'room.status.full'
+
+  if(props.disabled) return 'room.status.disabled'
+
+  return 'room.status.available'
 })
 
 </script>
@@ -52,7 +71,7 @@ html {
 }
 
 .tag-available {
-  background-color: var(--color-selected);
+  background-color: var(--color-primary);
 }
 
 .tag-disabled {

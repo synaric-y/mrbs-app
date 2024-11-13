@@ -6,7 +6,7 @@ import DateSelect from "@/components/DateSelect.vue";
 import TimeStepperScroll from "@/components/TimeStepperScroll.vue";
 import RepeatedReserveDialog from "@/components/RepeatedReserveDialog.vue";
 import {useRoute, useRouter} from 'vue-router';
-import {onMounted, ref} from "vue";
+import {computed, onMounted, ref} from "vue";
 import {
   calcTimeSpace,
   dayTag,
@@ -33,11 +33,13 @@ import SvgIcon from "@/components/SvgIcon.vue";
 import InfoHeader from "@/components/InfoHeader.vue";
 import 'vant/es/dialog/style'
 import {i18n} from "@/i18n/index.js";
+import dayjs from "dayjs";
+import _ from "lodash";
 
 const route = useRoute()
 const router = useRouter();
 
-
+const currentTs = parseInt(route.query.time)
 const currentDate = ref(route.query.time?new Date(parseInt(route.query.time)):new Date()) // 当前日期，双向绑定 初始值是由index的时间戳（ms）转来的，如果没有这个参就是当天日期
 
 // 常量，今天到14天以后
@@ -63,7 +65,7 @@ const timelineDisabled = ref(false)
 const meetingTopic = ref('')
 
 const returnToIndex = ()=>{
-  router.replace({ path:'/room',query:{time:currentDate.value.getTime()} }) //直接跳走
+  router.replace({ path:'/room',query:{time:currentDate.value.getTime(),area_name:route.query.area_name?route.query.area_name:'all'} }) //直接跳走
 }
 
 const getMeetings = ()=>{
@@ -239,21 +241,36 @@ const showRepeatReserveDialog=()=>{
 
 const reserveMeeting=()=>{
 
-  if(!meetingTopic.value || meetingTopic.value.length==0){
+  if(!meetingTopic.value || meetingTopic.value.length===0){
     showToast(i18n.global.t('meeting.form.missing'),);
     return
   }
 
   // 构建查询参数
   const query = {
-    room_id: room.value.room_id,
-    start_time: hrToTimestamp(currentDate.value,leftTime.value),
-    end_time: hrToTimestamp(currentDate.value,rightTime.value),
-    name: meetingTopic.value
+    "area_id": area.value.area_id,
+    "area_name": area.value.area_name,
+    "room_id": room.value.room_id,
+    "room_name": room.value.room_name,
+    "rooms": [
+      room.value.room_id
+    ],
+    "name": meetingTopic.value,
+    "start_date": dayjs(currentDate.value).format("YYYY-MM-DD"),
+    "start_hour": dayjs(currentDate.value).startOf("day").add(leftTime.value,'h').format("HH:mm"),
+    "start_seconds": dayjs(currentDate.value).startOf("day").add(leftTime.value,'h').unix(),
+    "end_date": dayjs(currentDate.value).format("YYYY-MM-DD"),
+    "end_hour": dayjs(currentDate.value).startOf("day").add(rightTime.value,'h').format("HH:mm"),
+    "end_seconds": dayjs(currentDate.value).startOf("day").add(rightTime.value,'h').unix(),
+    "original_room_id": room.value.room_id,
+    "registrant_limit": room.value.capacity
   }
 
+  console.log(query)
 
-  bookMeetingApi(query)
+
+
+  editMeetingByIdApi(query)
       .then(res=>{
         showToast(i18n.global.t('meeting.reserve.success'));
         returnToIndex()
@@ -269,10 +286,14 @@ const reserveMeeting=()=>{
 
 const convertToBinaryWithSundayLeft = (rep_day)=>{
   let binaryRepresentation = 0;
+  const length = 7;
+  let binaryArray = new Array(length).fill('0');
+
   rep_day.forEach(value => {
-    binaryRepresentation |= (1 << (7 - value));
+    // binaryRepresentation |= (1 << (7 - value));
+    binaryArray[parseInt(value)] = 1;
   });
-  return binaryRepresentation;
+  return binaryArray.join('');
 }
 
 const repeatReserve=(form)=>{
@@ -285,100 +306,38 @@ const repeatReserve=(form)=>{
   // TODO: 更多的校验
 
 
-
-
-
-
-
   console.log(form)
-
-  let pack = {
-    "id": 0,
-    "area_id": 20,
-    "area_name": "shanghai",
-    "room_id": 18,
-    "room_name": "TestA",
-    "rooms": [
-      18
-    ],
-    "name": "测试A",
-    "start_date": "2024-10-31",
-    "end_date": "2024-10-31",
-    "start_hour": "19:30",
-    "start_seconds": 1730374200,
-    "rep_end_date": "2024-11-08",
-    "end_hour": "20:00",
-    "end_seconds": 1730376000,
-    "description": "",
-    "repeat_week": "1",
-    "check_list": [],
-    "rep_opt": 48,
-    "rep_interval": 2,
-    "all_day": "",
-    "type": "E",
-    "original_room_id": 18,
-    "ical_uid": "1123123",
-    "ical_sequence": 1,
-    "ical_recur_id": "asdfa",
-    "allow_registration": "",
-    "registrant_limit": 10,
-    "registrant_limit_enabled": "1",
-    "registration_opens_value": 1,
-    "registration_open_units": "w",
-    "registration_open_enabled": "",
-    "registration_closes_value": 1,
-    "registration_closes_units": "w",
-    "registration_closes_enabled": "",
-    "rep_id": null,
-    "edit_series": 1,
-    "rep_type": 2,
-    "rep_day": [
-      "2",
-      "3"
-    ],
-    "month_type": 0,
-    "month_absolute": 2,
-    "month_relative_ord": "",
-    "month_relative_day": "",
-    "skip": 0,
-    "no_mail": 1,
-    "private": "",
-    "create_by": ""
-  }
-
-  const rep_day = form.rep_day
-
-  rep_day.forEach((item,idx,arr)=>{arr[idx]=item+''})
 
   // 构建查询参数
   const query = {
-    area_id: area.value.area_id,
-    area_name: area.value.area_name,
-    description: '',
-    room_id: room.value.room_id,
-    original_room_id: room.value.room_id,
-    room_name: room.value.room_name,
-    rooms: [room.value.room_id],
-    name: meetingTopic.value,
-    start_date: ymdFormat(new Date()),
-    start_hour: hourFormat(leftTime.value),
-    start_seconds: hrToTimestamp(currentDate.value,leftTime.value),
-    end_date: ymdFormat(new Date()),
-    end_hour: hourFormat(rightTime.value),
-    end_seconds: hrToTimestamp(currentDate.value,rightTime.value),
-    rep_end_date: form.rep_end_date,
-    rep_day: rep_day,
-    rep_opt: convertToBinaryWithSundayLeft(form.rep_day)
+    "area_id": area.value.area_id,
+    "area_name": area.value.area_name,
+    "room_id": room.value.room_id,
+    "room_name": room.value.room_name,
+    "rooms": [
+      room.value.room_id
+    ],
+    "name": meetingTopic.value,
+    "start_date": dayjs(currentDate.value).format("YYYY-MM-DD"),
+    "start_hour": dayjs(currentDate.value).startOf("day").add(leftTime.value,'h').format("HH:mm"),
+    "start_seconds": dayjs(currentDate.value).startOf("day").add(leftTime.value,'h').unix(),
+    "end_date": dayjs(currentDate.value).format("YYYY-MM-DD"),
+    "end_hour": dayjs(currentDate.value).startOf("day").add(rightTime.value,'h').format("HH:mm"),
+    "end_seconds": dayjs(currentDate.value).startOf("day").add(rightTime.value,'h').unix(),
+    "rep_end_date": form.rep_end_date,
+    "original_room_id": room.value.room_id,
+    "registrant_limit": room.value.capacity,
+    "edit_series": 1, // 决定循环会议
+    "rep_day": form.rep_day,
+    "rep_interval": form.rep_interval,
+    "rep_opt": convertToBinaryWithSundayLeft(form.rep_day),
+    "rep_type": 2,
   }
 
-  pack = {
-    ...pack,
-    ...query
-  }
+  console.log(query)
 
-  console.log(pack)
 
-  editMeetingByIdApi(pack).then(res=>{
+  editMeetingByIdApi(query).then(res=>{
 
     const code = res.code
 
@@ -390,8 +349,6 @@ const repeatReserve=(form)=>{
 
     showToast(i18n.global.t('meeting.reserve.repeat_success'))
     returnToIndex()
-
-
 
   }).catch(err=>{
 
@@ -513,7 +470,36 @@ onMounted(()=>{
 
 })
 
+const colorType = computed(()=>{
+  const theme = document.documentElement.getAttribute('data-theme')
+  console.log(theme)
 
+  if(theme.indexOf('dark')!==-1){
+    console.log(134)
+    return '#9262da'
+  }
+  else{
+    console.log(138)
+    return '#591BB7'
+  }
+
+})
+
+const colorType1 = computed(()=>{
+  const theme = document.documentElement.getAttribute('data-theme')
+  console.log(theme)
+
+  if(theme.indexOf('dark')!==-1){
+    console.log(134)
+    return '#959697'
+  }
+  else{
+    console.log(138)
+
+    return '#333333'
+  }
+
+})
 
 
 
@@ -525,7 +511,7 @@ onMounted(()=>{
     <template #header>
       <Header :title="$t('room.title')+(room.room_name)">
         <template #header-left-btn>
-          <SvgIcon name="navigate-before" width="1.7rem" height="1.7rem" @click="returnToIndex"/>
+          <SvgIcon :fill="colorType1" name="navigate-before" width="1.7rem" height="1.7rem" @click="returnToIndex"/>
         </template>
       </Header>
 
@@ -559,11 +545,12 @@ onMounted(()=>{
         <div class="title">{{$t('meeting.form.topic')}}</div>
         <input :disabled="timelineDisabled" class="input" v-model="meetingTopic" :placeholder="$t('meeting.form.placeholder')"/>
       </div>
-      <van-button :disabled="timelineDisabled" class="large-btn" color="#591bb7" type="primary" round size="large" @click="showReserveDialog" v-if="!entryId">{{ $t('button.reserve') }}</van-button>
-      <van-button :disabled="timelineDisabled" class="large-btn" color="#591bb7" type="primary" round size="large" @click="showRepeatReserveDialog" v-if="!entryId">{{ $t('button.repeated_reserve') }}</van-button>
+      <van-button :disabled="timelineDisabled" class="large-btn" type="primary" round size="large" @click="showReserveDialog" v-if="!entryId">{{ $t('button.reserve') }}</van-button>
+      <van-button :disabled="timelineDisabled" class="large-btn" type="primary" round size="large" @click="showRepeatReserveDialog" v-if="!entryId">{{ $t('button.repeated_reserve') }}</van-button>
       <van-button class="large-btn" color="#bebebe" type="primary" round size="large" @click="returnToIndex" v-if="!entryId">{{ $t('button.cancel') }}</van-button>
-      <van-button class="large-btn" color="#591bb7" type="primary" round size="large" @click="showCommonDialog('edit',editMeeting)" v-if="entryId">{{ $t('button.confirm') }}</van-button>
-      <van-button class="large-btn" color="#bebebe" type="primary" round size="large" @click="showCommonDialog('cancel',cancelMeeting)" v-if="entryId">{{ $t('button.cancel') }}</van-button>
+      <van-button class="large-btn" :color="colorType" type="primary" round size="large" @click="showCommonDialog('edit',editMeeting)" v-if="entryId">{{ $t('button.confirm') }}</van-button>
+<!--      <van-button class="large-btn" color="#bebebe" type="primary" round size="large" @click="showCommonDialog('cancel',cancelMeeting)" v-if="entryId">{{ $t('button.cancel') }}</van-button>-->
+      <van-button class="large-btn" color="#bebebe" type="primary" round size="large" @click="router.replace('/my')" v-if="entryId">{{ $t('button.cancel') }}</van-button>
 
     </template>
   </Layout>
@@ -571,7 +558,7 @@ onMounted(()=>{
     <van-date-picker @confirm="onConfirmDate" @cancel="showDateSelect = false" :min-date="minDate"
                      :max-date="maxDate">
       <template #confirm>
-        <div style="color:#591BB7">{{$t('button.confirm')}}</div>
+        <div style="color:var(--color-primary)">{{$t('button.confirm')}}</div>
       </template>
     </van-date-picker>
   </van-popup>
@@ -597,7 +584,7 @@ onMounted(()=>{
   .title{
     font-weight: 700;
     font-size: 0.85rem;
-    color: var(--color-primary-text);
+    color: var(--color-text);
     min-width: 4rem;
     white-space: nowrap;
   }
@@ -619,10 +606,12 @@ onMounted(()=>{
 .large-btn{
   margin-top: 1.2rem;
   font-size: 1.1rem;
+  background-color: var(--color-primary);
+  border: 1px solid var(--color-primary);
 }
 
 .input{
-  color: #575757;
+  color: var(--color-regular-text);
   font-size: 0.85rem;
   box-sizing: border-box;
   line-height: inherit;
@@ -644,6 +633,6 @@ onMounted(()=>{
 }
 
 .input::placeholder {
-  color: #cccccc;
+  color: var(--color-secondary-text);
 }
 </style>

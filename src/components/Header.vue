@@ -32,7 +32,7 @@ html{
 
     .title{
       line-height: 3;
-      color: var(--color-primary-text);
+      color: var(--color-heading);
       font-weight: 700;
       font-size: 1.1rem;
       padding-left: 0.2rem;

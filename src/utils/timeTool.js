@@ -58,6 +58,19 @@ const calcTimeSpace = (str)=>{
     if(str.indexOf('PM')!==-1 && hr!==12) res+=12
     return res
 }
+
+const calcTimeSpaceStr = (str)=>{
+    let time = str.split(' ')[0] // 08:00
+    let hr = parseInt(time.split(':')[0])
+    let min = parseInt(time.split(':')[1])
+
+    if(str.indexOf('PM')!==-1 && hr!==12) hr+=12
+    if(hr<10) hr = '0'+hr
+    if(min<10) min = '0'+min
+
+    return hr+":"+min
+}
+
 const begEndTime = (duration)=>{
     const t1 = calcTime(duration.split('-')[0])
     const t2 = calcTime(duration.split('-')[1])
@@ -256,5 +269,6 @@ export {
     timestampHourFormat,
     timestampToHr,
     calcTimeSpace,
+    calcTimeSpaceStr,
     getNearestScale
 }

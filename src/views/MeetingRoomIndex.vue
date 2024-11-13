@@ -31,6 +31,7 @@ const router = useRouter();
 const route = useRoute()
 
 const currentDate = ref(route.query.time ? new Date(parseInt(route.query.time)) : new Date())
+const selectedArea = ref(route.query.area_name ? route.query.area_name : 'all')
 
 // 区域总表
 const areaList = ref([])
@@ -67,6 +68,7 @@ const getMeetings = () => {
         areaList.value = data.areas
 
         // 表单
+        areaOptions.value = [] // 清空
         areaOptions.value.push({ // 全部
           text:i18n.global.t('area.location.all'),
           value:'all'
@@ -77,6 +79,7 @@ const getMeetings = () => {
             value: item.area_name
           })
         })
+
 
 
         loaded.value = true
@@ -104,10 +107,10 @@ const gotoMeetingDetail = (areaDisabled, roomDisabled, room_id) => {
     showToast(i18n.global.t('area.notify.disabled'));
   else if (roomDisabled)
     showToast(i18n.global.t('room.notify.disabled'));
-  else router.push({path: '/detail', query: {room_id: room_id, time: currentDate.value.getTime()}});
+  else router.push({path: '/detail', query: {room_id: room_id, time: currentDate.value.getTime(), area_name: selectedArea.value}});
 }
 
-const selectedArea = ref('all')
+
 const showPicker = ref(false)
 
 const onConfirm = ({ selectedOptions }) => {
@@ -120,6 +123,22 @@ const filteredArea = computed(() => {
   return areaList.value.filter((item)=>{
     return selectedArea.value==='all' || item.area_name===selectedArea.value
   })
+
+})
+
+
+const colorType = computed(()=>{
+  const theme = document.documentElement.getAttribute('data-theme')
+  console.log(theme)
+
+  if(theme.indexOf('dark')!==-1){
+    console.log(134)
+    return '#eee'
+  }
+  else{
+    console.log(138)
+    return '#591BB7'
+  }
 
 })
 
@@ -137,7 +156,7 @@ const filteredArea = computed(() => {
             <!--          <LanguageSelect/>-->
 
             <div class="header-right" @click="router.push({path: '/my'});">
-              <SvgIcon name="user-outline" width="2.3rem" height="2.3rem"/>
+              <SvgIcon :fill="colorType" name="user-outline" width="2.3rem" height="2.3rem"/>
               <div class="info">{{ $t('title.myReservation') }}</div>
             </div>
           </div>
@@ -198,11 +217,10 @@ const filteredArea = computed(() => {
         @confirm="onConfirm"
     >
       <template #confirm>
-        <div style="color:#591BB7">{{$t('button.confirm')}}</div>
+        <div style="color:var(--color-primary)">{{$t('button.confirm')}}</div>
       </template>
     </van-picker>
   </van-popup>
-
 
 </template>
 
@@ -234,11 +252,11 @@ html {
     flex-direction: row;
     align-items: center;
     gap: 0.3rem;
+    color: var(--color-text);
 
     .info {
       font-weight: 400;
       font-size: 0.9rem;
-      color: var(--color-primary-text);
     }
   }
 
@@ -248,7 +266,7 @@ html {
 .container {
 
 
-  background-color: var(--color-background);
+  background-color: var(--color-background-soft);
 
   .header-wrapper {
     padding: 1rem;
@@ -277,7 +295,7 @@ html {
 
   .content-wrapper {
     padding: 1rem 0 5rem;
-    background-color: var(--color-background-content);
+    background-color: var(--color-background);
 
 
     .filter-wrapper {

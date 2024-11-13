@@ -34,4 +34,5 @@ const props = defineProps({
 const symbolId = computed(() => {
   return `#${props.prefix}-${props.name}`
 })
+
 </script>

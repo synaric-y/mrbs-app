@@ -26,6 +26,7 @@ export default {
             available: '可预定',
             disabled: '不可用',
             full: '已约满',
+            not_in_service: '不在服务时间'
         },
         notify:{
             disabled: '此会议室不可用',

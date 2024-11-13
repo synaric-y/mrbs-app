@@ -26,6 +26,7 @@ export default {
             available: 'Available',
             disabled: 'Disabled',
             full: 'Full',
+            not_in_service: 'Closed'
         },
         notify:{
             disabled: 'The meeting room is disabled',

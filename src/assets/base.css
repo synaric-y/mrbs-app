@@ -23,21 +23,23 @@
 
 /* semantic color variables for this project */
 :root {
-  --color-background: #f7f8fa;
-  --color-background-content: #ffffff;
+  --color-background: #FFFFFF;
+  --color-background-soft: #f7f8fa;
+  --color-background-mute: rgba(0,0,0,.3);
+  --color-background-card: #FFFFFF;
 
   --color-border: #efefef;
   --color-border-hover: var(--vt-c-divider-light-1);
 
-  --color-heading: #282828;
+  --color-heading: #333333;
 
-  --color-primary-text: #333333;
+  --color-primary-text: #666666;
   --color-regular-text: #797979;
-  --color-secondary-text: #b0b0b0;
+  --color-secondary-text: #C0C7D1;
 
-  --color-default: #f5f5f5;
+  --color-default: #f3f3f3;
 
-  --color-disabled: #e7e7e7;
+  --color-disabled: #e5e5e5;
 
   --color-canceled: #4f4f4f;
 
@@ -58,15 +60,28 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-background: var(--vt-c-black);
-    --color-background-soft: var(--vt-c-black-soft);
-    --color-background-mute: var(--vt-c-black-mute);
+    --color-background: #272829;
+    --color-background-soft: rgba(72,73,74,.5);
+    --color-background-mute: rgba(72,73,74,.5);
+    --color-background-card: #19191A;
 
     --color-border: var(--vt-c-divider-dark-2);
     --color-border-hover: var(--vt-c-divider-dark-1);
 
     --color-heading: var(--vt-c-text-dark-1);
     --color-text: var(--vt-c-text-dark-2);
+    --color-regular-text: rgba(250,252,255,.5);
+    --color-secondary-text: #525455;
+
+    --color-default: rgba(250,252,255,0.7);
+    --color-disabled: #959697;
+
+    /*--color-primary: #9262da;*/
+    /*--color-selected: #c2a0f1;*/
+    /*--color-success: #9262da;*/
+    --color-primary: #642abb;
+    --color-primary-light: #a281d4;
+    --color-selected: #591BB7;
   }
 }
 

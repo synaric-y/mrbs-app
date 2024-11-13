@@ -7,7 +7,8 @@ const msg=ref('')
 console.log('login')
 wxOauth2Url()
     .then(res=>{
-      window.location.href = res
+      window.location.replace(res)
+      // window.location.href = res
     })
     .catch(err=>{
       console.log(err)

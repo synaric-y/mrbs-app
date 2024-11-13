@@ -9,25 +9,30 @@ import {i18n} from "@/i18n/index.js";
 const router = useRouter()
 
 const msg = ref('')
+const url = ref(window.location.href)
+const code = ref(false)
 
-wxLoginApi(getQueryVariable('code'))
+const codeIdx = url.value.indexOf('code=')
+
+if(codeIdx!==-1){
+  const realCodeIdx = codeIdx+5
+  const realCode = url.value.substring(realCodeIdx)
+  code.value = realCode
+}
+
+
+
+wxLoginApi(code.value)
     .then(res=>{
       console.log(res)
       msg.value = res
       if(res && (res.code === 0 || res.code === 1 || res.code === 200)){
-        msg.value = i18n.global.t('login.success')
         router.replace({ path: '/room' })
-      }else{
-        msg.value = i18n.global.t('login.fail')
       }
     })
     .catch(err=>{
       console.log(err)
       msg.value = err
-
-      // if(err.message.indexOf('already login')!==-1){ // 已登录
-      //   router.replace({ path: '/room' })
-      // }
 
       // router.replace({ path: '/room' })
     })
@@ -35,9 +40,32 @@ wxLoginApi(getQueryVariable('code'))
 </script>
 
 <template>
-<div>{{msg}}</div>
+<!--<p>{{msg}}</p>-->
+<!--<p>当前地址：{{url}}</p>-->
+<!--<p>当前code：{{code}}</p>-->
+
+  <div class="page">
+    <div class="welcome">{{$t('hello')}}</div>
+    <div class="welcome">{{$t('welcome')}}</div>
+  </div>
 </template>
 
 <style scoped lang="scss">
+p{
+  padding: 1rem;
+  word-break: break-all;
+}
+
+.page{
+
+  padding: 6rem 0 0 2rem;
+
+  .welcome{
+    font-size: 1.75rem;
+    color: #6d37bf;
+    line-height: 1.75;
+    font-weight: 700;
+  }
+}
 
 </style>

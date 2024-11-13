@@ -1069,7 +1069,7 @@ const handleEndRight = (event)=>{
   align-items: center;
   flex-direction: row;
   justify-content: space-between;
-  border-bottom: 0.05rem solid #efefef;
+  border-bottom: 0.05rem solid var(--color-border);
   color: var(--color-regular-text);
 
   .title{

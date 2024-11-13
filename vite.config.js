@@ -30,16 +30,5 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
-  },
-  server:{
-    proxy:{
-      '/web':{
-        target: 'https://meeting-manage-test.businessconnectchina.com:12443', // 新的目标地址
-        changeOrigin: true,
-        // pathRewrite: {
-        //   '^/web': '/' // 将路径中的 /web 重写为空
-        // },
-      }
-    }
   }
 })
