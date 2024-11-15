@@ -35,6 +35,7 @@ import 'vant/es/dialog/style'
 import {i18n} from "@/i18n/index.js";
 import dayjs from "dayjs";
 import _ from "lodash";
+import TimeStepperScrollTest from "@/components/TimeStepperScrollTest.vue";
 
 const route = useRoute()
 const router = useRouter();
@@ -59,8 +60,9 @@ const isFirst = ref(!!entryId)
 const currentMeeting = ref(null)
 
 // 时间轴事件
-const leftTime = ref(8)
-const rightTime = ref(8)
+const serverTime = ref(0)
+const leftTime = ref(0)
+const rightTime = ref(0)
 const timelineDisabled = ref(false)
 const meetingTopic = ref('')
 
@@ -91,6 +93,9 @@ const getMeetings = ()=>{
     // 发请求
     getAllMeetingsApi(temp)
       .then((res) => {
+
+        serverTime.value = res.data.timestamp
+
         // 重新赋值
         const temp = res.data.areas
 
@@ -166,8 +171,8 @@ const getMeetingById = ()=>{
       currentMeeting.value=res.data
 
       // 时间轴手柄
-      leftTime.value = timestampToHr(currentMeeting.value.start_time)
-      rightTime.value = timestampToHr(currentMeeting.value.end_time)
+      leftTime.value = currentMeeting.value.start_time
+      rightTime.value = currentMeeting.value.end_time
 
       // 会议主题
       meetingTopic.value = currentMeeting.value.name
@@ -411,8 +416,9 @@ const editMeeting = ()=>{
 
   Object.assign(temp,currentMeeting.value)
 
-  temp.start_seconds = hrToTimestamp(currentDate.value,leftTime.value)
-  temp.end_seconds= hrToTimestamp(currentDate.value,rightTime.value)
+
+  temp.start_seconds = leftTime.value
+  temp.end_seconds= rightTime.value
   temp.name = meetingTopic.value
   temp.rooms = [parseInt(room_id.value)]
   temp.start_date = ymdFormat(currentDate.value)
@@ -522,17 +528,29 @@ const colorType1 = computed(()=>{
     <template #content>
       <InfoHeader :title="room.room_name" :position="area.area_name" :capacity="room.capacity" :facilities="room.description"/>
 
-      <TimeStepperScroll
-          :isFirst="isFirst"
-          :lb="area.morningstarts?parseInt(area.morningstarts):(area.start_time?calcTimeSpace(area.start_time):6)"
-          :ub="area.eveningends?parseInt(area.eveningends):(area.end_time?calcTimeSpace(area.end_time):21)"
+<!--      <TimeStepperScroll-->
+<!--          :isFirst="isFirst"-->
+<!--          :lb="area.morningstarts?parseInt(area.morningstarts):(area.start_time?calcTimeSpace(area.start_time):6)"-->
+<!--          :ub="area.eveningends?parseInt(area.eveningends):(area.end_time?calcTimeSpace(area.end_time):21)"-->
+<!--          :meetings="room.entries"-->
+<!--          :currentDate="currentDate"-->
+<!--          v-model:leftHandle="leftTime"-->
+<!--          v-model:rightHandle="rightTime"-->
+<!--          v-model:disabled="timelineDisabled"-->
+<!--          :scale="area.resolution? (area.resolution/SEC_PER_MIN) : 30"-->
+<!--      />-->
+
+      <TimeStepperScrollTest
+          :lb="hrToTimestamp(currentDate,area.morningstarts?parseInt(area.morningstarts):(area.start_time?calcTimeSpace(area.start_time):6))"
+          :ub="hrToTimestamp(currentDate,area.eveningends?parseInt(area.eveningends):(area.end_time?calcTimeSpace(area.end_time):21))"
           :meetings="room.entries"
-          :currentDate="currentDate"
           v-model:leftHandle="leftTime"
           v-model:rightHandle="rightTime"
           v-model:disabled="timelineDisabled"
-          :scale="area.resolution? (area.resolution/SEC_PER_MIN) : 30"
-      />
+          :currentDate="currentDate"
+          :currentTime="serverTime"
+          :isFirst="false"
+          :scale="area.resolution? (area.resolution/SEC_PER_MIN) : 30"/>
 
       <div class="form-item">
         <div class="title">{{$t('meeting.form.date')}}</div>

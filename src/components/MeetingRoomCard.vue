@@ -11,24 +11,24 @@ const full = ref(false)
 const hr21 = dayjs().startOf('day').add(props.endTime, 'hours')
 const hr6 = dayjs().startOf('day').add(props.startTime, 'hours')
 
-const overdue = ref(dayjs().isAfter(hr21) || dayjs().isBefore(hr6))
+const overdue = ref(dayjs(props.currentDate).isSame(new dayjs(),'day') && (dayjs().isAfter(hr21) || dayjs().isBefore(hr6)))
 
 const calcTagClass = computed(() => {
 
-  if(overdue.value || full.value) return 'tag tag-full'
-
   if(props.disabled) return 'tag tag-disabled'
+
+  if(overdue.value || full.value) return 'tag tag-full'
 
   return 'tag tag-available'
 
 })
 const calcTagText = computed(() => {
 
+  if(props.disabled) return 'room.status.disabled'
+
   if(overdue.value) return 'room.status.not_in_service'
 
   if(full.value) return 'room.status.full'
-
-  if(props.disabled) return 'room.status.disabled'
 
   return 'room.status.available'
 })

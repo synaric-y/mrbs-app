@@ -13,7 +13,7 @@ import { i18n } from '@/i18n/index';
 import _ from "lodash";
 
 
-const fringe = 10 // 左右两边的安全区
+const fringe = 12 // 左右两边的安全区
 
 const props = defineProps(['lb','ub','meetings','currentDate','scale','full'])
 const emits = defineEmits(['update:full','clicked']) // 双向绑定

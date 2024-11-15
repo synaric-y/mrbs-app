@@ -20,62 +20,7 @@ const check_box_list = [
   { label: 'day.sunday', value: '0' },
 ]
 
-let meetForm = {
-  tmp_repeat_id: 0,
-  id: 0,
-  area_id: '',
-  area_name: '',
-  room_id: '',
-  room_name: '',
-  rooms: [],
-  name: '',
-  start_date: '',
-  end_date: '',
-  start_hour: '',
-  start_seconds: 0,
-  rep_end_date: '',
-  end_hour: '',
-  end_seconds: 0,
-  description: '',
-  repeat_week: '1',
-  check_list: [],
-  rep_opt: 0,
-  rep_interval: 1,
-  // 未知参数
-  all_day: "",
-  type: "E",
-  original_room_id: null,
-  ical_uid: "1123123",
-  ical_sequence: 1,
-  ical_recur_id: "asdfa",
-  allow_registration: "",
-  registrant_limit: 10,
-  registrant_limit_enabled: "1",
-  registration_opens_value: 1,
-  registration_open_units: "w",
-  registration_open_enabled: "",
-  registration_closes_value: 1,
-  registration_closes_units: "w",
-  registration_closes_enabled: "",
-  rep_id: null,
-  edit_series: 1,
-  rep_type: 2,
-  rep_day: [],
-  month_type: 0,
-  month_absolute: 2,
-  month_relative_ord: "",
-  month_relative_day: "",
-  skip: 0,
-  no_mail: 1,
-  private: "",
-  create_by: '',
-  book_by: ''
-}
-
-
 const minDate = ref(new Date())
-const areaOptions = ref([])
-const roomOptions = ref([])
 const filter = (type, options) => {
   if (type === 'minute') {
     return options.filter((option) => Number(option.value) % ((tempMeetForm.resolution||1800)/60) === 0);
@@ -84,8 +29,6 @@ const filter = (type, options) => {
 };
 
 // 弹窗
-const showAreaPicker = ref(false)
-const showRoomPicker = ref(false)
 const showStartDateSelect = ref(false);
 const showEndDateSelect = ref(false);
 const showTime1Select = ref(false);
@@ -114,71 +57,14 @@ const tempMeetForm = reactive({
     5: false,
     6: false,
   },
-  days_binary: '',
   end_date: ''
 })
 
-
-const getRooms = (area_id)=>{
-  return new Promise((resolve,reject)=>{
-    getAllRoomsApi({
-      id: area_id
-    }).then(({data})=>{
-
-      const areas = data.areas
-      const rooms = areas.rooms
-      console.log(areas.start_time)
-
-
-      tempMeetForm.area_start_time = calcTimeSpaceStr(areas.start_time)
-      tempMeetForm.area_end_time = calcTimeSpaceStr(areas.end_time)
-      tempMeetForm.resolution = areas.resolution
-
-      console.log(tempMeetForm)
-
-      roomOptions.value = []
-      _.forEach(rooms,(item)=>{
-        roomOptions.value.push({
-          text: item.room_name,
-          value: item.room_id
-        })
-      })
-
-      resolve()
-    })
-    .catch(e=>{
-      showToast('房间信息获取失败');
-      reject()
-    })
-  })
-}
-
-// 区域
-const onAreaConfirm = ({selectedOptions})=>{
-  showAreaPicker.value = false
-  tempMeetForm.area_id = selectedOptions[0].value
-  tempMeetForm.area_name = selectedOptions[0].text
-
-  getRooms(tempMeetForm.area_id)
-}
-
-
-const prepareRoom = ()=>{
-
-  if(roomOptions.value.length === 0){
-    showToast('房间信息为空，请切换其他区域');
-    return
-  }
-
-  showRoomPicker.value = true;
-}
-
-// 房间
-const onRoomConfirm = ({selectedOptions})=>{
-  showRoomPicker.value = false
-  tempMeetForm.room_id = selectedOptions[0].value
-  tempMeetForm.room_name = selectedOptions[0].text
-}
+// 用于表单展示，无逻辑效果
+const startDateDisplay = ref([])
+const endDateDisplay = ref([])
+const time1Display = ref([])
+const time2Display = ref([])
 
 // 开始时间
 const onConfirmStartDate = ({selectedValues})=>{
@@ -207,14 +93,7 @@ const onConfirmEndDate = (val) => {
 
 
 const validate = ()=>{
-  if(!tempMeetForm.area_id || !tempMeetForm.area_name){
-    showToast('区域未选择');
-    return false
-  }
-  if(!tempMeetForm.room_id || !tempMeetForm.room_name){
-    showToast('房间未选择');
-    return false
-  }
+
   if(!tempMeetForm.title){
     showToast('会议标题不能为空');
     return false
@@ -251,7 +130,6 @@ const validate = ()=>{
   console.log(tempMeetForm)
 
   return true
-  // emits('confirm',form)
 }
 
 onMounted(()=>{
@@ -277,8 +155,6 @@ onMounted(()=>{
       days[item] = true
     })
 
-    Object.assign(meetForm, data)
-
     Object.assign(tempMeetForm, {
       start_date: dayjs.unix(data.start_time).format('YYYY-MM-DD'),
       end_date: data.end_date,
@@ -294,23 +170,12 @@ onMounted(()=>{
       create_by: data.create_by,
     })
 
-
-    getRooms(tempMeetForm.area_id)
+    startDateDisplay.value = tempMeetForm.start_date.split('-')
+    endDateDisplay.value = tempMeetForm.end_date.split('-')
+    time1Display.value = tempMeetForm.time1.split(':')
+    time2Display.value = tempMeetForm.time2.split(':')
 
   })
-
-  getAllAreasApi()
-      .then(({data})=>{
-        _.forEach(data,(item)=>{
-          areaOptions.value.push({
-            text: item.area_name,
-            value: item.id
-          })
-        })
-      })
-      .catch(e=>{
-        showToast('区域信息获取失败');
-      })
 })
 
 const toBinary = (checkList)=>{
@@ -335,37 +200,39 @@ const commit = ()=>{
 
   if(!validate()) return
 
-  const res = toBinary(tempMeetForm.days)
-  console.log(res)
-
-  console.log(dayjs(tempMeetForm.start_date+' '+tempMeetForm.time2).unix())
-
-  meetForm = {
-    ...meetForm,
-    original_room_id: tempMeetForm.room_id,
-    tmp_repeat_id: props.repeat_id,
-    id: props.entry_id,
-    name: tempMeetForm.title,
-    room_id: tempMeetForm.room_id,
-    room_name: tempMeetForm.room_name,
-    rooms: [tempMeetForm.room_id],
-    area_id: tempMeetForm.area_id,
-    area_name: tempMeetForm.area_name,
-    end_date: tempMeetForm.end_date,
-    rep_end_date: tempMeetForm.end_date,
-    start_date: tempMeetForm.start_date,
-    start_hour: tempMeetForm.time1,
-    start_time: dayjs(tempMeetForm.start_date+' '+tempMeetForm.time1).unix(),
-    end_time: dayjs(tempMeetForm.start_date+' '+tempMeetForm.time2).unix(),
-    end_hour: tempMeetForm.time2,
-    rep_opt: toBinary(tempMeetForm.days),
-    rep_day: toStrArray(tempMeetForm.days)
+  // 构建查询参数
+  const query = {
+    "area_id": tempMeetForm.area_id,
+    "area_name": tempMeetForm.area_name,
+    "room_id": tempMeetForm.room_id,
+    "room_name": tempMeetForm.room_name,
+    "rooms": [
+      tempMeetForm.room_id
+    ],
+    "name": tempMeetForm.title,
+    "start_date": tempMeetForm.start_date,
+    "start_hour": tempMeetForm.time1,
+    "start_seconds": dayjs(tempMeetForm.start_date+' '+tempMeetForm.time1).unix(),
+    "end_date": tempMeetForm.end_date,
+    "end_hour": tempMeetForm.time2,
+    "end_seconds": dayjs(tempMeetForm.start_date+' '+tempMeetForm.time2).unix(),
+    "rep_end_date": tempMeetForm.end_date,
+    "original_room_id": tempMeetForm.room_id,
+    "tmp_repeat_id": props.repeat_id,
+    "id": props.entry_id,
+    "edit_series": 1, // 决定循环会议
+    "rep_day": toStrArray(tempMeetForm.days),
+    "rep_interval": tempMeetForm.interval,
+    "rep_opt": toBinary(tempMeetForm.days),
+    "rep_type": 2,
   }
 
-  console.log(meetForm)
+
+  console.log(query)
+
 
   showLoadingToast("请稍候...")
-  editMeetingByIdApi(meetForm).then(({ data, code, msg }) => {
+  editMeetingByIdApi(query).then(({ data, code, msg }) => {
       closeToast()
       if (code === 0) {
         showToast('循环会议编辑成功');
@@ -378,23 +245,9 @@ const commit = ()=>{
         showToast('循环会议编辑失败，错误信息：'+msg);
       }
     }).catch(e=>{
-    closeToast()
-    showToast('循环会议编辑失败，错误信息：'+e.message);
-  })
-  // Api.editMeet(this.meetForm).then(({ data, code, msg }) => {
-  //   if (code == 0) {
-  //     this.$emit('close')
-  //     ElMessage({
-  //       message: this.$t('base.editSuccess'),
-  //       type: 'success',
-  //     })
-  //   } else {
-  //     ElMessage({
-  //       message: msg,
-  //       type: 'error',
-  //     })
-  //   }
-  // })
+      closeToast()
+      showToast('循环会议编辑失败，错误信息：'+e.message);
+    })
 }
 
 
@@ -410,21 +263,17 @@ const commit = ()=>{
 
           <van-field
               v-model="tempMeetForm.area_name"
-              is-link
-              readonly
+              disabled
               name="areaPicker"
               label="区域"
-              placeholder="点击选择区域"
-              @click="showAreaPicker = true"
+              placeholder="无"
           />
           <van-field
               v-model="tempMeetForm.room_name"
-              is-link
-              readonly
+              disabled
               name="roomPicker"
               label="会议室"
-              placeholder="点击选择会议室"
-              @click="prepareRoom"
+              placeholder="无"
           />
           <van-field
               v-model="tempMeetForm.title"
@@ -445,8 +294,8 @@ const commit = ()=>{
           <van-field
               v-model="tempMeetForm.time1"
               readonly
-              label="会议开始时间"
-              label-align="right"
+              is-link
+              label="会议开始"
               placeholder="点击选择时间"
               left-icon="clock-o"
               @click="showTime1Select = true"
@@ -454,8 +303,8 @@ const commit = ()=>{
           <van-field
               v-model="tempMeetForm.time2"
               readonly
-              label-align="right"
-              label="会议结束时间"
+              is-link
+              label="会议结束"
               placeholder="点击选择时间"
               left-icon="clock-o"
               @click="showTime2Select = true"
@@ -496,8 +345,8 @@ const commit = ()=>{
               is-link
               readonly
               name="datePicker"
-              label="结束时间"
-              placeholder="点击选择时间"
+              label="结束日期"
+              placeholder="点击选择日期"
               @click="showEndDateSelect = true"
           />
         </van-cell-group>
@@ -513,29 +362,11 @@ const commit = ()=>{
 
       </div>
     </div>
-    <!--区域-->
-    <van-popup v-model:show="showAreaPicker" round position="bottom">
-      <van-picker
-          :columns="areaOptions"
-          @cancel="showAreaPicker = false"
-          @confirm="onAreaConfirm"
-      >
-        <template #confirm>
-          <div style="color:#591BB7">{{$t('button.confirm')}}</div>
-        </template>
-      </van-picker>
-    </van-popup>
-    <!--房间-->
-    <van-popup v-model:show="showRoomPicker" position="bottom">
-      <van-picker :columns="roomOptions" @confirm="onRoomConfirm" @cancel="showRoomPicker = false">
-        <template #confirm>
-          <div style="color:#591BB7">{{$t('button.confirm')}}</div>
-        </template>
-      </van-picker>
-    </van-popup>
+
+
     <!--开始时间-->
     <van-popup v-model:show="showStartDateSelect" position="bottom">
-      <van-date-picker @confirm="onConfirmStartDate" @cancel="showStartDateSelect = false" :min-date="minDate">
+      <van-date-picker @confirm="onConfirmStartDate" @cancel="showStartDateSelect = false" :min-date="minDate" v-model="startDateDisplay">
         <template #confirm>
           <div style="color:#591BB7">{{$t('button.confirm')}}</div>
         </template>
@@ -550,6 +381,7 @@ const commit = ()=>{
           :min-time="tempMeetForm.area_start_time || '08:00'"
           :max-time="tempMeetForm.area_end_time || '21:00'"
           :filter="filter"
+          v-model="time1Display"
       />
     </van-popup>
     <!--选择会议结束时间-->
@@ -561,11 +393,12 @@ const commit = ()=>{
           :min-time="tempMeetForm.area_start_time || '08:00'"
           :max-time="tempMeetForm.area_end_time || '21:00'"
           :filter="filter"
+          v-model="time2Display"
       />
     </van-popup>
     <!--结束时间-->
     <van-popup v-model:show="showEndDateSelect" position="bottom">
-      <van-date-picker @confirm="onConfirmEndDate" @cancel="showEndDateSelect = false" :min-date="minDate">
+      <van-date-picker @confirm="onConfirmEndDate" @cancel="showEndDateSelect = false" :min-date="minDate" v-model="endDateDisplay">
         <template #confirm>
           <div style="color:#591BB7">{{$t('button.confirm')}}</div>
         </template>

@@ -26,11 +26,11 @@ export default {
             available: '可预定',
             disabled: '不可用',
             full: '已约满',
-            not_in_service: '不在服务时间'
+            not_in_service: '已关闭'
         },
         notify:{
             disabled: '此会议室不可用',
-            full: '此会议室已约满'
+            full: '找不到可用时间'
         }
     },
     meeting:{
@@ -70,6 +70,7 @@ export default {
         cancel:{
             title: '提示',
             message: '确认取消会议?',
+            message_repeat: '确认取消循环会议?所有与之关联的循环会议都会被删除。',
             success: '会议取消成功！',
             fail: '会议取消失败！'
         }

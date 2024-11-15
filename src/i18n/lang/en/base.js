@@ -65,6 +65,7 @@ export default {
         cancel:{
             title: 'Confirm Cancel',
             message: 'Are you sure to cancel the meeting?',
+            message_repeat: 'Are you sure to cancel repeat meeting?All related meetings will be deleted.',
             success: 'Cancelled successfully！',
             fail: 'Cancel failed！'
         }

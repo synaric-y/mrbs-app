@@ -124,7 +124,7 @@ const gotoEdit = (status, repeat_id, id, room_id) => {
 
 }
 
-const cancelMeeting = (entryId) => {
+const cancelMeeting = (entryId,repeatId) => {
 
   if(disableClick.value) return
 
@@ -134,9 +134,13 @@ const cancelMeeting = (entryId) => {
     entry_id: parseInt(entryId),
   }
 
+  if(repeatId){ // 删除循环会议
+    temp.entry_series = 1
+  }
+
   showConfirmDialog({
     title: i18n.global.t('meeting.cancel.title'),
-    message: i18n.global.t('meeting.cancel.message'),
+    message: repeatId?i18n.global.t('meeting.cancel.message_repeat'):i18n.global.t('meeting.cancel.message'),
     confirmButtonColor: '#591bb7'
   })
       .then(() => {
@@ -163,6 +167,11 @@ const cancelMeeting = (entryId) => {
         closeDialog()
       });
 
+}
+
+const repeatEditConfirm=()=>{
+  showRepeatedEditDialog.value=false
+  window.location.reload()
 }
 
 
@@ -204,7 +213,7 @@ const cancelMeeting = (entryId) => {
                 />
                 <template #right>
                   <div class="btns">
-                    <van-button square :text="$t('button.cancel')" class="cancel-button" @click="cancelMeeting(entry.id)"/>
+                    <van-button square :text="$t('button.cancel')" class="cancel-button" @click="cancelMeeting(entry.id,entry.repeat_id)"/>
                     <van-button square :text="$t('button.edit')" class="change-button"
                                 @click="gotoEdit(item.status,entry.repeat_id,entry.id,entry.room_id)"/>
                   </div>
@@ -219,7 +228,7 @@ const cancelMeeting = (entryId) => {
 
     </template>
   </Layout>
-  <RepeatedEditDialog v-if="showRepeatedEditDialog" :repeat_id="currentRepeatId" :entry_id="currentEntryId" @close="showRepeatedEditDialog=false" @confirm="()=>{showRepeatedEditDialog=false;router.go(0)}"/>
+  <RepeatedEditDialog v-if="showRepeatedEditDialog" :repeat_id="currentRepeatId" :entry_id="currentEntryId" @close="showRepeatedEditDialog=false" @confirm="repeatEditConfirm"/>
 
 </template>
 

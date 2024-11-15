@@ -14,270 +14,232 @@ import 'vant/es/toast/style'
 import SvgIcon from "@/components/SvgIcon.vue";
 import { i18n } from '@/i18n/index';
 import _ from 'lodash'
+import {Decimal} from "decimal.js";
+import {
+  formatTimeByHM,
+  generateTsSequence,
+  nearestScaleTs,
+  nextScaleTs,
+  SEC_PER_HOUR,
+  SEC_PER_MINUTE, tsDiff
+} from "@/utils/timestampTool.js";
+import dayjs from "dayjs";
+import {isBetween} from "@/utils/mathUtil.js";
 
 const fringe = 20 // 左右两边的安全区
 
-const props = defineProps(['lb','ub','meetings','leftHandle','rightHandle','currentDate','disabled','isFirst','scale'])
+// 两手柄css闪烁类
+const leftHandleBlink = ref('')
+const rightHandleBlink = ref('')
+
+
+
+const props = defineProps(['lb','ub','meetings','leftHandle','rightHandle','currentDate','disabled','isFirst','scale','currentTime'])
 const emits = defineEmits(["update:leftHandle","update:rightHandle","update:disabled"]);
 
 // 转换成ref变量
 const scaleFloat = ref(props.scale / 60) // 30分钟-》0.5 15分钟-》0.25
 const timeTable = ref(props.meetings); // 保持响应式连接
-const refTimeline = ref(null) // 时间轴dom对象
+
 const span = ref(props.ub-props.lb)
 const hrArray = ref([])
-const zoomIn = 500
-const zoomConstant = - (zoomIn/100-1)/(zoomIn/100)
-
-onMounted(()=>{
-
-  console.log(props.meetings)
-
-  // 初始化刻度
-  hrArray.value = generateTimeSequence(props.lb,props.ub)
+const zoomIn = document.documentElement.clientWidth>1024?200:600 //大屏幕放大倍率小一点
+const zoomConstant = -((zoomIn-100)/zoomIn)
 
 
-
-  // 处理每个会议的开始结束时间，转为24小时制
-  for(let i =0; i<timeTable.value.length; i++){
-    const temp = begEndTime(timeTable.value[i].duration)
-    timeTable.value[i].leftHr = temp[0]
-    timeTable.value[i].rightHr = temp[1]
-  }
-
-  // 如果是今天，将先前的几个小时清掉
-  invalidatePast()
-
-  // 排序，按每个会议起始时间（防止乱序导致手柄初始化问题）
-  timeTable.value = _.sortBy(timeTable.value,['leftHr'])
-  console.log(timeTable.value)
-
-  // 编辑态，把那条记录清掉
-  if(props.isFirst){
-    const idx = _.findIndex(timeTable.value,{ 'leftHr': props.leftHandle})
-    timeTable.value.splice(idx, 1)
-  }
-
-  // 初始化手柄
-  getInitialHandle()
-
-  // 初始化滚动(编辑状态)
-  // autoScrollToHr(props.rightHandle)
-})
-
-
-/*================先前时间失效==================*/
-const invalidatePast = ()=>{
-  if(twoDayDiff(props.currentDate,new Date())===0){ // 当前日期是今天
-    const endHr = getNearestNextTime(new Date(),props.scale)
-    timeTable.value.unshift({
-      leftHr: props.lb,
-      rightHr: endHr,
-      status: 2
-    })
-  }
-}
-
-/*================初始化手柄==================*/
-const getInitialHandle = ()=>{
-
-
-  if(props.isFirst){ //说明已有初始值
-    autoScrollToHr(props.rightHandle)
-    return;
-  }
-
-
-  let leftHr = props.lb
-  let rightHr = leftHr + scaleFloat.value
-
-  // console.log(leftHr,rightHr)
-
-  // 不能简单套用fullCheck，因为手柄未初始化
-  if(isRightHandleValid(rightHr)&&isBothValid(leftHr,rightHr)&&isCorrectOrder(leftHr,rightHr)){
-
-    autoScrollToHr(rightHr)
-
-    emits('update:leftHandle', leftHr)
-    emits('update:rightHandle', rightHr)
-    return
-  }
-
-
-  for(let i =0; i<timeTable.value.length; i++){
-    leftHr = timeTable.value[i].rightHr // 尝试从各个时间段的右边开始
-    rightHr = leftHr + scaleFloat.value
-    // 不能简单套用fullCheck，因为手柄未初始化
-    if(isRightHandleValid(rightHr)&&isBothValid(leftHr,rightHr)&&isCorrectOrder(leftHr,rightHr)){
-
-      autoScrollToHr(rightHr)
-
-      emits('update:leftHandle', leftHr)
-      emits('update:rightHandle', rightHr)
-      return
-    }
-  }
-
-  // 还是找不到，就报错
-  showToast(i18n.global.t('room.notify.full'));
-  emits("update:disabled",true)
-}
-
-
-/**
- * 时间条自动滚动到...
- * */
-const autoScrollToHr = (hr)=>{
-
-  if(hr<props.lb||hr>props.ub) return // 在可约时间外进入页面，页面不滚
-
-  let left2 = (hr-props.lb)/span.value*refContent.value.clientWidth  // 已过去的时间（px单位）
-  let left1 = refContainer.value.clientWidth/2  // 窗口的一半
-
-  let temp = -(left2 - left1)
-
-  if(temp>fringe) temp=fringe // 禁止正数的left，但留有余地
-  if(temp<(zoomConstant*refContent.value.clientWidth)-fringe) temp=(zoomConstant*refContent.value.clientWidth)-fringe // 禁止太左移了
-
-  if(hr===props.lb+scaleFloat.value){//一天刚开始
-    temp = 20
-  }
-
-  contentPositionLeft.value = temp
-
-}
-
-
-/*==============样式计算函数============*/
-
-// 根据真实值计算左侧定位百分比
-const handlePosition = (val) => {
-  return ((val - props.lb) / span.value * 100) + '%'
-}
-
-// 根据下标计算左侧定位百分比
-const handlePositionIndex = (idx) => {
-  return (idx / span.value * 100) + '%'
-}
-
-// 根据真实值计算宽度
-const handleWidth = (leftVal,rightVal) => {
-  return ((rightVal - leftVal) / span.value * 100) + '%'
-}
-
-// 根据当前坐标计算左侧定位百分比
-const handlePositionPercent = (val) => {
-  return ((val - refTimeline.value.offsetLeft) / refTimeline.value.clientWidth * 100) + '%'
-}
-
-// 根据当前坐标计算左侧定位百分比（浮点数版本）
-const handlePositionPercentFloat = (val) => {
-  return (val - refTimeline.value.offsetLeft) / refTimeline.value.clientWidth
-}
-
-// 计算离当前百分比对应的真实值最近的一个刻度（按实际刻度处理）
+/*
+ * 时间戳相关
+ */
 const getNearestPercentScale = (per) => {
-  const currentValue = per * span.value + props.lb
+  const currentValue = Number(new Decimal(per).times(span.value).plus(props.lb))
   console.log(currentValue)
-  return getNearestScale(currentValue,props.lb,props.ub,props.scale)
+  return nearestScaleTs(currentValue, props.lb, props.ub, props.scale * 60)
 }
 
-/*==============手柄逻辑函数============*/
-// 检查左值是否非法
-const isLeftHandleValid = (left)=>{
-  for(let i =0; i<timeTable.value.length; i++){
-    if (left >= timeTable.value[i].leftHr && left < timeTable.value[i].rightHr) return false
-  }
 
-  if(left < props.lb) return false // 检查是否越界
+/*
+ * 手柄逻辑函数
+ */
+// 检查左值是否非法
+const isLeftHandleValid = (left) => {
+  if (left < props.lb) return false // 检查是否越界
+
+  for (let i = 0; i < timeTable.value.length; i++) {
+    if (left >= timeTable.value[i].start_time && left < timeTable.value[i].end_time) return false
+  }
 
   return true
 }
 
 // 检查右值是否非法
-const isRightHandleValid = (right)=>{
-  for(let i =0; i<timeTable.value.length; i++){
-    if (right > timeTable.value[i].leftHr && right <= timeTable.value[i].rightHr) return false
-  }
+const isRightHandleValid = (right) => {
+  if (right > props.ub) return false // 检查是否越界
 
-  if(right > props.ub) return false // 检查是否越界
+  for (let i = 0; i < timeTable.value.length; i++) {
+    if (right > timeTable.value[i].start_time && right <= timeTable.value[i].end_time) return false
+  }
 
   return true
 }
 
 // 检查是否包含某已有的时间
-const isBothValid = (left,right)=>{
-  for(let i =0; i<timeTable.value.length; i++){
-    if (left <= timeTable.value[i].leftHr && right >= timeTable.value[i].rightHr) return false
+const isBothValid = (left, right) => {
+  for (let i = 0; i < timeTable.value.length; i++) {
+    if (left <= timeTable.value[i].start_time && right >= timeTable.value[i].end_time) return false
   }
 
   return true
 }
 
 // 检查两手柄关系
-const isCorrectOrder = (left,right)=>{
-  return left<right // 严格小于
+const isCorrectOrder = (left, right) => {
+  return right>left
 }
 
-const fullCheckLeft = (leftHr)=>{
-  if(!isLeftHandleValid(leftHr)) return false // 开始时间非法
-  if(!isBothValid(leftHr,props.rightHandle)) return false // 产生非法的范围
-  if(!isCorrectOrder(leftHr,props.rightHandle)) return false // 错误顺序
+const fullCheckLeft = (left) => {
+  if (!isLeftHandleValid(left)) return false // 开始时间非法
+  if (!isBothValid(left, props.rightHandle)) return false // 产生非法的范围
+  if (!isCorrectOrder(left, props.rightHandle)) return false // 错误顺序
   return true
 }
 
-const fullCheckRight = (rightHr) => {
-  if(!isRightHandleValid(rightHr)) return false // 结束时间非法
-  if(!isBothValid(props.leftHandle,rightHr)) return false // 产生非法的范围
-  if(!isCorrectOrder(props.leftHandle,rightHr)) return false // 错误顺序
+const fullCheckRight = (right) => {
+  if (!isRightHandleValid(right)) return false // 结束时间非法
+  if (!isBothValid(props.leftHandle, right)) return false // 产生非法的范围
+  if (!isCorrectOrder(props.leftHandle, right)) return false // 错误顺序
   return true
 }
 
 // 综合测试，两手柄都是新的
-const fullCheck = (leftHr,rightHr)=>{
-  return isLeftHandleValid(leftHr)
-      && isRightHandleValid(rightHr)
-      && isBothValid(leftHr,rightHr)
-      && isCorrectOrder(leftHr,rightHr)
+const fullCheck = (left, right) => {
+  return isLeftHandleValid(left) &&
+      isRightHandleValid(right) &&
+      isBothValid(left, right) &&
+      isCorrectOrder(left, right)
 }
 
-/*============================点击事件：左值初始化===========================*/
 
-/*============================拖动事件：左值===========================*/
-const positionLeft = ref(handlePosition(props.leftHandle))
-
-// 监听左值变化，改变绝对定位
-watch(() => props.leftHandle, (newValue, oldValue) => {
-  positionLeft.value = handlePosition(newValue)
-}, { immediate: true })
-
-/*================================拖动事件：右值================================*/
-const positionRight = ref(handlePosition(props.rightHandle))
-
-// 监听右值变化，改变绝对定位
-watch(() => props.rightHandle, (newValue, oldValue) => {
-  positionRight.value = handlePosition(newValue)
-}, { immediate: true })
-
-
-/*=================步进器右值变化==================*/
-const addHalf = (e)=>{
-  const rightHr = props.rightHandle + scaleFloat.value
-  if(!fullCheckRight(rightHr)) return
-
-  emits('update:rightHandle', rightHr)
+/*==================格式化==================*/
+const getEntryStatus = (entry) => {
+  if(_.inRange(props.currentTime, entry.start_time, entry.end_time)) return 1 // 进行中
+  if(props.currentTime > entry.end_time) return 2 // 已结束
+  return 0 // 待开始
 }
 
-const minusHalf = (e)=>{
-  const rightHr = props.rightHandle - scaleFloat.value
-  if(!fullCheckRight(rightHr)) return
-
-  emits('update:rightHandle', rightHr)
+const getEntryText = (status) => {
+  const mapping = {
+    0: i18n.global.t('meeting.status.toStart'),
+    1: i18n.global.t('meeting.status.inProgress'),
+    2: i18n.global.t('meeting.status.finished'),
+    3: ''
+  }
+  return mapping[status]
 }
+
+const formatMeetings = () => {
+  const tempList = []
+
+  console.log(dayjs().unix())
+
+
+  // 如果是今天，将先前的几个小时清掉
+  if(dayjs().isSame(dayjs(props.currentDate),'day')){ // 当前日期是今天
+    tempList.push({
+      start_time: props.lb,
+      end_time: Math.min(nextScaleTs(dayjs().unix(),props.scale*SEC_PER_MINUTE), props.ub),
+      status: 3, // 已过去的时间
+      text: ''
+    })
+  }
+
+  _.forEach(props.meetings,entry=>{
+
+    // 去除不在范围内的会议
+    if (entry.start_time > props.ub) return
+    if (entry.end_time < props.lb) return
+
+    const status = getEntryStatus(entry)
+
+    tempList.push({
+      id: entry.entry_id,
+      start_time: Math.max(entry.start_time, props.lb), // 截断越界的部分
+      end_time: Math.min(props.ub, entry.end_time),
+      status: status, // 待开始，进行中，已结束
+      text: getEntryText(status)
+    })
+
+  })
+
+
+  timeTable.value = tempList
+
+  // 排序，按每个会议起始时间（防止乱序导致手柄初始化问题）
+  timeTable.value = _.sortBy(timeTable.value,['start_time'])
+  console.log(timeTable.value)
+
+}
+
+/*================初始化手柄==================*/
+const getInitialHandle = () => {
+
+  let left = props.lb
+  let right = left + props.scale * 60
+
+  console.log(left, right);
+
+
+  // 不能简单套用fullCheck，因为手柄未初始化
+  if (isRightHandleValid(right) && isBothValid(left, right) && isCorrectOrder(left, right)) {
+    emits('update:leftHandle', left)
+    emits('update:rightHandle', right)
+    return
+  }
+
+  console.log(timeTable.value)
+
+  for (let i = 0; i < timeTable.value.length; i++) {
+    left = timeTable.value[i].end_time // 尝试从各个时间段的右边开始
+    right = left + props.scale * 60
+
+    // 不能简单套用fullCheck，因为手柄未初始化
+    if (isRightHandleValid(right) && isBothValid(left, right) && isCorrectOrder(left, right)) {
+      emits('update:leftHandle', left)
+      emits('update:rightHandle', right)
+      return
+    }
+  }
+
+  // 还是找不到，就报错
+  showToast(i18n.global.t('room.notify.full'));
+  emits("update:disabled", true)
+}
+
 
 // ref DOM元素
-const refContent = ref(null)
 const refContainer = ref(null)
+const refContent = ref(null)
+const refTimeline = ref(null) // 时间轴dom对象
+
+/*
+ * 样式计算函数
+ */
+// 根据真实值计算左侧定位百分比
+const handlePosition = (val) => {
+  return Number(new Decimal(val).minus(props.lb).dividedBy(span.value).times(100)) + '%'
+}
+
+// 根据真实值计算宽度
+const handleWidth = (leftVal, rightVal) => {
+  return Number(new Decimal(rightVal).minus(leftVal).dividedBy(span.value).times(100)) + '%'
+}
+
+
+
+
+
+/*
+ * 容器滚动函数
+ */
 
 
 /**
@@ -293,7 +255,7 @@ const animationDuration = ref(1) // 动画时间，s
 var minX = 0 // 最小的left（负数，2/3个content的宽度+20）
 var maxX = 0 // 最大的left（正数，20）
 
-var isScrolling = false // 是否正用手指滚动
+var isScrolling = ref(false) // 是否正用手指滚动
 var startTime = 0; // 触发惯性滚动的起始时间
 var startX = 0; // X 轴起始坐标
 var momentumStartX = 0; // 用于瞬时速度计算的滚动条位置
@@ -322,11 +284,63 @@ const stop = ()=>{
   contentPositionLeft.value = Math.round(+matrix.substring(0, idx))
 }
 
+const scrollContentMouseStart = (event)=>{
+  event.stopPropagation();
+  event.preventDefault();
+
+  isScrolling.value = true
+
+  // 动态计算一下边界
+  minX = (zoomConstant*refContent.value.clientWidth)-fringe
+  maxX = fringe
+
+  startX = (event.changedTouches?.[0].clientX) ?? event.clientX
+  startPosition = contentPositionLeft.value
+
+  document.addEventListener('mousemove', scrollContentMouseMove, true);
+  document.addEventListener('mouseup', scrollContentMouseEnd, true);
+}
+
+const scrollContentMouseMove = (event)=>{
+  event.stopPropagation();
+  event.preventDefault();
+
+  if(!isScrolling.value) return
+
+  const deltaX = ((event.changedTouches?.[0].clientX) ?? event.clientX) - startX
+
+  // 浮点数坐标会影响渲染速度
+  let finalX = Math.round(startPosition + deltaX);
+
+  // 超出边界时设为边界
+  if (finalX > maxX ) {
+    finalX = maxX
+  }
+
+  if (finalX < minX) {
+    finalX = minX
+  }
+
+  // 改坐标
+  contentPositionLeft.value = finalX
+
+  document.addEventListener('mousemove', scrollContentMouseMove);
+  document.addEventListener('mouseup', scrollContentMouseEnd);
+}
+
+const scrollContentMouseEnd = (event)=>{
+  event.stopPropagation();
+  event.preventDefault();
+
+  if(!isScrolling.value) return
+  isScrolling.value = false // 不再用手指滚动了
+}
+
 const scrollContentStart = (event)=>{
   event.stopPropagation();
   event.preventDefault();
 
-  isScrolling = true
+  isScrolling.value = true
 
   // 动态计算一下边界
   minX = (zoomConstant*refContent.value.clientWidth)-fringe
@@ -337,13 +351,15 @@ const scrollContentStart = (event)=>{
   startTime = event.timeStamp;
   startX = (event.changedTouches?.[0].clientX) ?? event.clientX
   momentumStartX = startPosition = contentPositionLeft.value
+
+
 }
 
 const scrollContentMove = (event)=>{
   event.stopPropagation();
   event.preventDefault();
 
-  if(!isScrolling) return
+  if(!isScrolling.value) return
 
   const deltaX = ((event.changedTouches?.[0].clientX) ?? event.clientX) - startX
 
@@ -368,6 +384,8 @@ const scrollContentMove = (event)=>{
 
 // 超出边界时需要重置位置
 const isNeedReset=()=>{
+
+
 
   let finalX = contentPositionLeft.value
 
@@ -426,8 +444,11 @@ const scrollContentEnd = (event)=>{
   event.stopPropagation();
   event.preventDefault();
 
-  if(!isScrolling) return
-  isScrolling = false // 不再用手指滚动了
+  document.removeEventListener('mousemove', scrollContentMove, true);
+  document.removeEventListener('mouseup', scrollContentEnd, true);
+
+  if(!isScrolling.value) return
+  isScrolling.value = false // 不再用手指滚动了
 
 
   if (isNeedReset()) return;
@@ -547,7 +568,7 @@ const barTapStart = (event)=>{
   startPosition = contentPositionLeft.value
   isMove = false // 初始是没滚动的
 
-  isScrolling = true
+  isScrolling.value = true
 
   // 动态计算一下边界
   minX = (zoomConstant*refContent.value.clientWidth)-fringe
@@ -560,8 +581,8 @@ const barTapStart = (event)=>{
   momentumStartX = startPosition = contentPositionLeft.value
 
   barTapDragging = true
-  document.addEventListener('mousemove', barTapMove, true);
-  document.addEventListener('mouseup', barTapEnd, true);
+  // document.addEventListener('mousemove', barTapMove, true);
+  // document.addEventListener('mouseup', barTapEnd, true);
 }
 
 const barTapMove = (event)=>{
@@ -577,7 +598,7 @@ const barTapMove = (event)=>{
   if (Math.abs(moveX - startX) > Math.abs(moveY - startY)) { // 滚动了
     isMove = true
 
-    if(!isScrolling) return
+    if(!isScrolling.value) return
 
     const deltaX = ((event.changedTouches?.[0].clientX) ?? event.clientX) - startX
 
@@ -607,8 +628,8 @@ const barTapEnd = (event)=>{
   event.preventDefault();
   barTapDragging = false
 
-  document.removeEventListener('mousemove', barTapMove, true);
-  document.removeEventListener('mouseup', barTapEnd, true);
+  // document.removeEventListener('mousemove', barTapMove, true);
+  // document.removeEventListener('mouseup', barTapEnd, true);
 
   if(!isMove){ // 不滚动就是点选
 
@@ -616,7 +637,7 @@ const barTapEnd = (event)=>{
     console.log(fl)
 
     const tempLeftHandle = getNearestPercentScale(fl)
-    const tempRightHandle = tempLeftHandle + scaleFloat.value
+    const tempRightHandle = tempLeftHandle + (SEC_PER_HOUR * (props.scale / 60))
 
     console.log(tempLeftHandle)
 
@@ -626,10 +647,116 @@ const barTapEnd = (event)=>{
     emits('update:leftHandle', tempLeftHandle)
     emits('update:rightHandle', tempRightHandle)
 
+
+
   }else{ // 滚动的逻辑
 
-    if(!isScrolling) return
-    isScrolling = false // 不再用手指滚动了
+    if(!isScrolling.value) return
+    isScrolling.value = false // 不再用手指滚动了
+
+
+    if (isNeedReset()) return;
+
+    var endX = (event.changedTouches?.[0].clientX) ?? event.clientX
+    var duration = event.timeStamp - startTime; // 瞬时时间
+    var s1 = endX - startX; // 瞬时位移
+    var absDeltaX = Math.abs(s1)
+
+    // 启动惯性滑动
+    if (duration < momentumTimeThreshold && absDeltaX > momentumXThreshold) {
+      const pack = momentum(contentPositionLeft.value, momentumStartX, duration);
+      contentPositionLeft.value = Math.round(pack.destination);
+      animationDuration.value = pack.duration;
+      animationCurve.value = pack.bezier;
+    }
+  }
+}
+
+const barTapMouseStart = (event)=>{
+  event.stopPropagation();
+  event.preventDefault();
+
+  startX = (event.changedTouches?.[0].clientX) ?? event.clientX
+  startY = (event.changedTouches?.[0].clientY) ?? event.clientY
+  startPosition = contentPositionLeft.value
+  isMove = false // 初始是没滚动的
+
+  isScrolling.value = true
+
+  // 动态计算一下边界
+  minX = (zoomConstant*refContent.value.clientWidth)-fringe
+  maxX = fringe
+
+  startX = (event.changedTouches?.[0].clientX) ?? event.clientX
+
+  barTapDragging = true
+  document.addEventListener('mousemove', barTapMouseMove, true);
+  document.addEventListener('mouseup', barTapMouseEnd, true);
+}
+
+const barTapMouseMove = (event)=>{
+  event.stopPropagation();
+  event.preventDefault();
+
+  if(!barTapDragging) return
+
+  isMove = true
+
+  if(!isScrolling.value) return
+
+  const deltaX = ((event.changedTouches?.[0].clientX) ?? event.clientX) - startX
+
+  // 浮点数坐标会影响渲染速度
+  let finalX = Math.round(startPosition + deltaX);
+
+  // 超出边界时增加阻力，只增加三分之一的位移
+  if(finalX > maxX){
+    finalX = maxX
+  }
+  if(finalX < minX){
+    finalX = minX
+  }
+
+  // 改坐标
+  contentPositionLeft.value = finalX
+
+  // 慢滚动重置初始时间和位置
+  if (event.timeStamp - startTime > momentumTimeThreshold) {
+    startTime = event.timestamp;
+    momentumStartX = finalX;
+  }
+
+}
+
+const barTapMouseEnd = (event)=>{
+
+  event.stopPropagation();
+  event.preventDefault();
+  barTapDragging = false
+
+
+  if(!isMove){ // 不滚动就是点选
+
+    const fl = (startX-startPosition)/refContent.value.clientWidth-0.01; // 由于style的问题，这个数值偏大了0.01
+    console.log(fl)
+
+    const tempLeftHandle = getNearestPercentScale(fl)
+    const tempRightHandle = tempLeftHandle + (SEC_PER_HOUR * (props.scale / 60))
+
+    console.log(tempLeftHandle)
+
+    if(!fullCheck(tempLeftHandle,tempRightHandle)) return
+
+    // 改值
+    emits('update:leftHandle', tempLeftHandle)
+    emits('update:rightHandle', tempRightHandle)
+
+
+
+  }else{ // 滚动的逻辑
+
+    if(!isScrolling.value) return
+    isScrolling.value = false // 不再用手指滚动了
 
 
     if (isNeedReset()) return;
@@ -658,66 +785,76 @@ const barTapEnd = (event)=>{
 const selectionStartX = ref(0)
 const selectionStartLeftHr = ref(0)
 const selectionStartRightHr = ref(0)
-let selectionTranslationDragging = false
-const selectionTranslationStart = (event)=>{
+const selectionTranslationDragging = ref(false)
+const selectionTranslationStart = (event) => {
 
   event.stopPropagation();
   event.preventDefault();
-  selectionTranslationDragging = true
+
+  console.log(290);
+  selectionTranslationDragging.value = true
 
   selectionStartX.value = event.changedTouches?.[0].clientX ?? event.clientX
   selectionStartLeftHr.value = props.leftHandle
   selectionStartRightHr.value = props.rightHandle
 
-  // 在document对象上添加的监听，可以获得超过元素本身的坐标
   document.addEventListener('mousemove', selectionTranslationMove, true);
   document.addEventListener('mouseup', selectionTranslationEnd, true);
 
 }
 
-const selectionTranslationMove = (event)=>{
-
+const selectionTranslationMove = (event) => {
   event.stopPropagation();
   event.preventDefault();
 
-  if(!selectionTranslationDragging) return
-
-  const slice = refContent.value.clientWidth / span.value * scaleFloat.value // 半点
+  const slice = Number(new Decimal(props.scale).times(60).dividedBy(span.value).times(refContent.value.clientWidth)) // 半点
   const currentX = event.changedTouches?.[0].clientX ?? event.clientX
-  const diff = currentX-selectionStartX.value
+  const diff = currentX - selectionStartX.value
 
 
   const sliceCnt = Math.trunc(diff / slice) // 平移的半小时个数
-  const tempLeftHandle = selectionStartLeftHr.value + sliceCnt * scaleFloat.value // 临时变量，新的左右值
-  const tempRightHandle = selectionStartRightHr.value + sliceCnt * scaleFloat.value
+  const tempLeftHandle = selectionStartLeftHr.value + sliceCnt * props.scale * 60 // 临时变量，新的左右值
+  const tempRightHandle = selectionStartRightHr.value + sliceCnt * props.scale * 60
 
-  if(!fullCheck(tempLeftHandle,tempRightHandle)) return // 两手柄条件错误则返回
+
+
+  if (!fullCheck(tempLeftHandle, tempRightHandle)) { // 两手柄条件错误则返回
+    if (diff < 0) { // 向左
+      leftHandleBlink.value = 'handle-blink'
+    } else { // 向右
+      rightHandleBlink.value = 'handle-blink'
+    }
+    return
+  }
 
   // 改值
   emits('update:leftHandle', tempLeftHandle)
   emits('update:rightHandle', tempRightHandle)
+
 }
 
-const selectionTranslationEnd = (event)=>{
-
+const selectionTranslationEnd = (event) => {
   event.stopPropagation();
   event.preventDefault();
 
-  selectionTranslationDragging = false
-  // 清除事件
+  selectionTranslationDragging.value = false
+
   document.removeEventListener('mousemove', selectionTranslationMove, true);
   document.removeEventListener('mouseup', selectionTranslationEnd, true);
+
+  leftHandleBlink.value = ''
+  rightHandleBlink.value = ''
 }
 
 
 const handleStartX = ref(0)
 const handleStartHr = ref(0)
-let handleDragging = false
+const handleDragging = ref(false)
 
 const handleStartLeft = (event)=>{
   event.stopPropagation();
   event.preventDefault();
-  handleDragging = true
+  handleDragging.value = true
 
 
   handleStartX.value = (event.changedTouches?.[0].clientX) ?? event.clientX
@@ -728,7 +865,7 @@ const handleStartLeft = (event)=>{
 const handleMouseStartLeft = (event)=>{
   event.stopPropagation();
   event.preventDefault();
-  handleDragging = true
+  handleDragging.value = true
 
   handleStartX.value = (event.changedTouches?.[0].clientX) ?? event.clientX
   handleStartHr.value = props.leftHandle
@@ -740,7 +877,7 @@ const handleMouseStartLeft = (event)=>{
 const handleStartRight = (event)=>{
   event.stopPropagation();
   event.preventDefault();
-  handleDragging = true
+  handleDragging.value = true
 
   handleStartX.value = (event.changedTouches?.[0].clientX) ?? event.clientX
   handleStartHr.value = props.rightHandle
@@ -750,7 +887,7 @@ const handleStartRight = (event)=>{
 const handleMouseStartRight = (event)=>{
   event.stopPropagation();
   event.preventDefault();
-  handleDragging = true
+  handleDragging.value = true
 
   handleStartX.value = (event.changedTouches?.[0].clientX) ?? event.clientX
   handleStartHr.value = props.rightHandle
@@ -759,38 +896,45 @@ const handleMouseStartRight = (event)=>{
   document.addEventListener('mouseup', handleEndRight, true);
 }
 
-const handleMoveLeft = (event)=>{
+const handleMoveLeft = (event) => {
   event.stopPropagation();
   event.preventDefault();
 
-  if(!handleDragging) return
+  if (!handleDragging.value) return
 
-  const slice = refContent.value.clientWidth / span.value * scaleFloat.value // 半点
+  const slice = Number(new Decimal(props.scale).times(60).dividedBy(span.value).times(refContent.value.clientWidth)) // 半点
   const currentX = (event.changedTouches?.[0].clientX) ?? event.clientX
-  const diff = currentX-handleStartX.value
+  const diff = currentX - handleStartX.value
   const sliceCnt = Math.trunc(diff / slice) // 平移的半小时个数
 
-  const tempHandle = handleStartHr.value + sliceCnt*scaleFloat.value // 临时变量
+  const tempHandle = handleStartHr.value + sliceCnt * props.scale * 60 // 临时变量
 
 
-  if(!fullCheckLeft(tempHandle)) return // 条件错误则返回
+  if (!fullCheckLeft(tempHandle)) { // 条件错误则返回并闪烁
+    leftHandleBlink.value = 'handle-blink'
+    return
+  }
   emits('update:leftHandle', tempHandle)
 }
 
-const handleMoveRight = (event)=>{
+const handleMoveRight = (event) => {
   event.stopPropagation();
   event.preventDefault();
 
-  if(!handleDragging) return
+  if (!handleDragging.value) return
 
-  const slice = refContent.value.clientWidth / span.value * scaleFloat.value // 半点
+
+  const slice = Number(new Decimal(props.scale).times(60).dividedBy(span.value).times(refContent.value.clientWidth)) // 半点
   const currentX = (event.changedTouches?.[0].clientX) ?? event.clientX
-  const diff = currentX-handleStartX.value
+  const diff = currentX - handleStartX.value
   const sliceCnt = Math.trunc(diff / slice) // 平移的半小时个数
 
-  const tempHandle = handleStartHr.value + sliceCnt*scaleFloat.value // 临时变量
+  const tempHandle = handleStartHr.value + sliceCnt * props.scale * 60 // 临时变量
 
-  if(!fullCheckRight(tempHandle)) return // 条件错误则返回
+  if (!fullCheckRight(tempHandle)) { // 条件错误则返回
+    rightHandleBlink.value = 'handle-blink'
+    return
+  }
   emits('update:rightHandle', tempHandle)
 }
 
@@ -798,7 +942,8 @@ const handleEndLeft = (event)=>{
   event.stopPropagation();
   event.preventDefault();
 
-  handleDragging = false
+  leftHandleBlink.value = '' // 停止拖动，不闪烁
+  handleDragging.value = false
   // 清除事件
   document.removeEventListener('mousemove', handleMoveLeft, true);
   document.removeEventListener('mouseup', handleEndLeft, true);
@@ -808,11 +953,70 @@ const handleEndRight = (event)=>{
   event.stopPropagation();
   event.preventDefault();
 
-  handleDragging = false
+  rightHandleBlink.value = ''
+  handleDragging.value = false
   // 清除事件
   document.removeEventListener('mousemove', handleMoveRight, true);
   document.removeEventListener('mouseup', handleEndRight, true);
 }
+
+
+/*============================点击事件：左值初始化===========================*/
+
+/*============================拖动事件：左值===========================*/
+const positionLeft = ref(handlePosition(props.leftHandle))
+
+// 监听左值变化，改变绝对定位
+watch(() => props.leftHandle, (newValue, oldValue) => {
+  positionLeft.value = handlePosition(newValue)
+}, { immediate: true })
+
+/*================================拖动事件：右值================================*/
+const positionRight = ref(handlePosition(props.rightHandle))
+
+// 监听右值变化，改变绝对定位
+watch(() => props.rightHandle, (newValue, oldValue) => {
+  positionRight.value = handlePosition(newValue)
+}, { immediate: true })
+
+
+/*=================步进器右值变化==================*/
+const addHalf = (e) => {
+  const rightHr = props.rightHandle + props.scale * 60
+  if (!fullCheckRight(rightHr)){
+    rightHandleBlink.value = ''
+    setTimeout(() => {rightHandleBlink.value = 'handle-blink-temp'},100); // 0.1s后刷新动画
+    return
+  }
+
+
+  emits('update:rightHandle', rightHr)
+}
+
+const minusHalf = (e) => {
+  const rightHr = props.rightHandle - props.scale * 60
+  if (!fullCheckRight(rightHr)){
+    rightHandleBlink.value = ''
+    setTimeout(() => {rightHandleBlink.value = 'handle-blink-temp'},100); // 0.1s后刷新动画
+
+    return
+  }
+
+  emits('update:rightHandle', rightHr)
+}
+
+onMounted(()=>{
+
+  console.log(props)
+
+  // 初始化刻度
+  hrArray.value = generateTsSequence(props.lb, props.ub, props.scale * 60)
+
+  formatMeetings()
+
+  getInitialHandle()
+
+})
 
 </script>
 
@@ -824,22 +1028,20 @@ const handleEndRight = (event)=>{
 
         <div class="timeline-content"
              ref="refContent"
-             :style="{width:zoomIn+'%', left:contentPositionLeft+'px',transition:'left '+animationCurve+' '+animationDuration+'s'}"
+             :style="{width:zoomIn+'%', left:contentPositionLeft+'px',transition:'left '+animationCurve+' '+animationDuration+'s',cursor:isScrolling?'grabbing':'grab'}"
              @touchstart="scrollContentStart"
              @touchmove="scrollContentMove"
              @touchend="scrollContentEnd"
              @transitionend="onTransitionEnd"
-             @mousedown="scrollContentStart"
-             @mousemove="scrollContentMove"
-             @mouseup="scrollContentEnd"
+             @mousedown="scrollContentMouseStart"
         >
           <div class="tags">
             <div class="tag tag-left" :style="'left:'+((leftHandle-lb)/span)*100+'%;'" v-if="!disabled">
-              <div class="tag-text no-select">{{hourFormat(leftHandle)}}</div>
+              <div class="tag-text no-select">{{formatTimeByHM(leftHandle)}}</div>
               <div class="triangle"></div>
             </div>
             <div class="tag tag-right" :style="'left:'+((rightHandle-lb)/span)*100+'%;'" v-if="!disabled">
-              <div class="tag-text no-select">{{hourFormat(rightHandle)}}</div>
+              <div class="tag-text no-select">{{formatTimeByHM(rightHandle)}}</div>
               <div class="triangle"></div>
             </div>
           </div>
@@ -849,44 +1051,46 @@ const handleEndRight = (event)=>{
               @touchstart="barTapStart"
               @touchmove="barTapMove"
               @touchend="barTapEnd"
-              @mousedown="barTapStart"
+              @mousedown="barTapMouseStart"
           >
             <div :class="{
                     'period':true,
                     'to-start':item.status===0,
                     'in-progress':item.status===1,
-                    'disabled':item.status===2
+                    'disabled':item.status===2,
+                    'overdue':item.status===3
                   }"
                  v-for="(item,i) in timeTable"
                  :key="i"
                  :style="{
-                   left:handlePosition(item.leftHr),
-                   width:handleWidth(item.leftHr,item.rightHr)
+                    left:handlePosition(item.start_time),
+                    width:handleWidth(item.start_time,item.end_time)
                  }"
-            />
+            >{{item.text}}</div>
             <div class="period selecting-period"
+                 v-if="!disabled"
                  :style="{
                     left:handlePosition(leftHandle),
                     width:handleWidth(leftHandle,rightHandle)
                   }"
-                 v-if="!disabled"
                  @touchstart="selectionTranslationStart"
                  @touchmove="selectionTranslationMove"
                  @touchend="selectionTranslationEnd"
                  @mousedown="selectionTranslationStart"
             />
             <div
-                 class="handle handle-left"
-                 :style="{left:positionLeft}"
+                 :class="'handle handle-left ' + leftHandleBlink"
                  v-if="!disabled"
+                 :style="{left:positionLeft,cursor:'pointer'}"
                  @touchstart="handleStartLeft"
                  @touchmove="handleMoveLeft"
                  @touchend="handleEndLeft"
                  @mousedown="handleMouseStartLeft"
             />
-            <div class="handle handle-right"
-                 :style="{left:positionRight}"
+            <div
+                 :class="'handle handle-right ' + rightHandleBlink"
                  v-if="!disabled"
+                 :style="{left:positionRight,cursor:'pointer'}"
                  @touchstart="handleStartRight"
                  @touchmove="handleMoveRight"
                  @touchend="handleEndRight"
@@ -898,7 +1102,7 @@ const handleEndRight = (event)=>{
                  class="number no-select"
                  v-for="(item,i) in hrArray"
                  :key="item">
-              {{item}}
+              {{(item%SEC_PER_HOUR===0)?(new Date(item*1000).getHours()):'.'}}
             </div>
           </div>
         </div>
@@ -910,7 +1114,7 @@ const handleEndRight = (event)=>{
       <SvgIcon name="minus" width="1.6rem" height="1.6rem" @click="minusHalf" v-if="!disabled"/>
 
       <div class="title" v-if="!disabled">
-        {{hourFormat(leftHandle)}}-{{hourFormat(rightHandle)}},&nbsp;{{hrDiff(leftHandle,rightHandle)}}
+        {{formatTimeByHM(leftHandle)}}-{{formatTimeByHM(rightHandle)}},&nbsp;{{tsDiff(leftHandle,rightHandle)}}
       </div>
       <div class="title" v-else>
         {{$t('time.notAvailable')}}
@@ -938,6 +1142,7 @@ const handleEndRight = (event)=>{
   width: 100%;
   display: flex;
   flex-direction: column;
+
 
 
 
@@ -1001,6 +1206,11 @@ const handleEndRight = (event)=>{
           left: 0;
           height: 100%;
           border-radius: 0.3rem;
+          text-align: center;
+          color: #fff;
+          font-size: 0.5rem;
+          line-height: 2.5rem;
+          cursor: default;
         }
         .to-start{
           background-color: var(--color-primary-light);
@@ -1008,6 +1218,11 @@ const handleEndRight = (event)=>{
 
         .disabled{
           background-color: var(--color-disabled);
+          color: var(--color-regular-text)
+        }
+        
+        .overdue{
+          background-color: #eee;
         }
 
         .in-progress{
@@ -1017,9 +1232,11 @@ const handleEndRight = (event)=>{
         .selecting-period{
           background-color: var(--color-primary);
           border-radius: 0;
+          z-index: 11;
+          cursor:pointer;
         }
 
-        .handle{
+        .handle {
           box-sizing: border-box;
           border-radius: 0.3rem;
           border: 0.1rem solid var(--color-primary);
@@ -1030,17 +1247,20 @@ const handleEndRight = (event)=>{
           height: 100%;
           width: 1rem;
           transform: translateX(-50%);
+          z-index: 12;
+        }
 
-          .handle-top{
-            position: absolute;
-            border-radius: 0.15rem;
-            border: 0.05rem solid var(--color-primary);
-            top: 50%;
-            left: 0.05rem;
-            height: 2.7rem;
-            width: 100%;
-            transform: translateY(-50%) translateX(-0.1rem);
-            background-color: #fff;
+        .handle-blink {
+          animation: blink 0.3s infinite ease-in-out;
+        }
+
+        .handle-blink-temp {
+          animation: blink 0.3s 3 ease-in-out;
+        }
+
+        @keyframes blink {
+          50% {
+            background-color: var(--color-danger-light);
           }
         }
 
