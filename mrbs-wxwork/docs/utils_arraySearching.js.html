@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>utils/arraySearching.js - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-DateTime.html">DateTime</a><ul class='methods'><li data-type='method'><a href="module-DateTime.html#~ceilScaleTs">ceilScaleTs</a></li><li data-type='method'><a href="module-DateTime.html#~dayText">dayText</a></li><li data-type='method'><a href="module-DateTime.html#~dayTextTs">dayTextTs</a></li><li data-type='method'><a href="module-DateTime.html#~fl2ts">fl2ts</a></li><li data-type='method'><a href="module-DateTime.html#~generateTsSequence">generateTsSequence</a></li><li data-type='method'><a href="module-DateTime.html#~getDateListOfNLength">getDateListOfNLength</a></li><li data-type='method'><a href="module-DateTime.html#~hhmm2fl">hhmm2fl</a></li><li data-type='method'><a href="module-DateTime.html#~nearestScaleTs">nearestScaleTs</a></li><li data-type='method'><a href="module-DateTime.html#~ts2hhmm">ts2hhmm</a></li><li data-type='method'><a href="module-DateTime.html#~tsDiff2hms">tsDiff2hms</a></li><li data-type='method'><a href="module-DateTime.html#~ymdFormat">ymdFormat</a></li><li data-type='method'><a href="module-DateTime.html#~ymdFormatTs">ymdFormatTs</a></li></ul></li><li></li><li></li><li><a href="module-LoginApi.html">LoginApi</a><ul class='methods'><li data-type='method'><a href="module-LoginApi.html#.wxLoginApi">wxLoginApi</a></li><li data-type='method'><a href="module-LoginApi.html#.wxOauth2Url">wxOauth2Url</a></li></ul></li><li><a href="module-MeetingFormat.html">MeetingFormat</a><ul class='methods'><li data-type='method'><a href="module-MeetingFormat.html#~formatMeetings">formatMeetings</a></li></ul></li><li><a href="module-MeetingOperApi.html">MeetingOperApi</a><ul class='methods'><li data-type='method'><a href="module-MeetingOperApi.html#~wrappedCancelMeetingById">wrappedCancelMeetingById</a></li><li data-type='method'><a href="module-MeetingOperApi.html#~wrappedEditRepeatedMeeting">wrappedEditRepeatedMeeting</a></li><li data-type='method'><a href="module-MeetingOperApi.html#~wrappedEditSingleMeeting">wrappedEditSingleMeeting</a></li><li data-type='method'><a href="module-MeetingOperApi.html#~wrappedForceEndMeetingById">wrappedForceEndMeetingById</a></li><li data-type='method'><a href="module-MeetingOperApi.html#~wrappedGetMeetingById">wrappedGetMeetingById</a></li><li data-type='method'><a href="module-MeetingOperApi.html#~wrappedReserveRepeatedMeeting">wrappedReserveRepeatedMeeting</a></li><li data-type='method'><a href="module-MeetingOperApi.html#~wrappedReserveSingleMeeting">wrappedReserveSingleMeeting</a></li></ul></li><li><a href="module-MeetingQueryApi.html">MeetingQueryApi</a><ul class='methods'><li data-type='method'><a href="module-MeetingQueryApi.html#~wrappedGetMeetings">wrappedGetMeetings</a></li><li data-type='method'><a href="module-MeetingQueryApi.html#~wrappedGetMeetingsByCreator">wrappedGetMeetingsByCreator</a></li><li data-type='method'><a href="module-MeetingQueryApi.html#~wrappedGetMeetingsByRoomId">wrappedGetMeetingsByRoomId</a></li></ul></li><li></li><li><a href="module-Timeline.html">Timeline</a><ul class='methods'><li data-type='method'><a href="module-Timeline.html#.findNextLargerTime">findNextLargerTime</a></li><li data-type='method'><a href="module-Timeline.html#.findPreviousSmallerTime">findPreviousSmallerTime</a></li><li data-type='method'><a href="module-Timeline.html#~fullCheck">fullCheck</a></li><li data-type='method'><a href="module-Timeline.html#~isBothValid">isBothValid</a></li><li data-type='method'><a href="module-Timeline.html#~isCorrectOrder">isCorrectOrder</a></li><li data-type='method'><a href="module-Timeline.html#~isLeftHandleValid">isLeftHandleValid</a></li><li data-type='method'><a href="module-Timeline.html#~isRightHandleValid">isRightHandleValid</a></li></ul></li><li></li><li><a href="module-UI.html">UI</a><ul class='methods'><li data-type='method'><a href="module-UI.html#.showModal">showModal</a></li><li data-type='method'><a href="module-UI.html#.showToast">showToast</a></li><li data-type='method'><a href="module-UI.html#~gotoPage">gotoPage</a></li><li data-type='method'><a href="module-UI.html#~navigateBack">navigateBack</a></li><li data-type='method'><a href="module-UI.html#~returnToIndex">returnToIndex</a></li></ul></li><li></li></ul><h3>Global</h3><ul><li><a href="global.html#MEETING_EXPIRED">MEETING_EXPIRED</a></li><li><a href="global.html#MEETING_FINISHED">MEETING_FINISHED</a></li><li><a href="global.html#MEETING_IN_PROGRESS">MEETING_IN_PROGRESS</a></li><li><a href="global.html#MEETING_TO_START">MEETING_TO_START</a></li><li><a href="global.html#SEC_PER_HOUR">SEC_PER_HOUR</a></li><li><a href="global.html#SEC_PER_MINUTE">SEC_PER_MINUTE</a></li></ul>
+    
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">utils/arraySearching.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @author Octene
+ * @file 给定数组及一个点位，寻找上一个较小值/下一个较大值
+*/
+
+/** @module Timeline */
+
+import _ from 'lodash'
+
+/**
+ * @function
+ * @author Octene
+ * @description 下一个较大值
+ * @param {Entry[]} arr 会议数组
+ * @param {Number} target 当前点位
+ * @param {Number} lb 时间下界（含），时间戳
+ * @param {Number} ub 时间上界（含），时间戳
+ * @returns {Number} 当前点位的下一个较大值
+*/
+export function findNextLargerTime(arr,target,lb,ub){
+	for(let i=0;i&lt;arr.length;i++){
+		if(arr[i].start_time>=target) return arr[i].start_time
+	}
+	return ub
+}
+
+/**
+ * @function
+ * @author Octene
+ * @description 上一个较小值
+ * @param {Entry[]} arr 会议数组
+ * @param {Number} target 当前点位
+ * @param {Number} lb 时间下界（含），时间戳
+ * @param {Number} ub 时间上界（含），时间戳
+ * @returns {Number} 当前点位的上一个较小值
+*/
+export function findPreviousSmallerTime(arr,target,lb,ub){
+	
+	// 排序，按每个会议结束时间（防止找到错误的最小值）
+	const tempArr = _.sortBy(arr,['end_time'])
+	
+	// console.log(arr);
+	for(let i = tempArr.length-1;i>=0;i--){
+		if(arr[i].end_time&lt;=target) return tempArr[i].end_time
+	}
+	return lb
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.4</a> on Mon Dec 02 2024 16:00:21 GMT+0800 (中国标准时间) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+
+
+</body>
+</html>

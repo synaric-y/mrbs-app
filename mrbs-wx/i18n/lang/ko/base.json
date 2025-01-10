@@ -1,0 +1,158 @@
+{
+    "login": {
+        "hello": "안녕하세요,",
+        "welcome": "회의실 예약 시스템에 오신 것을 환영합니다",
+        "login_notify": {
+            "success": "로그인 성공",
+            "fail": "로그인 실패"
+        }
+    },
+    "index": {
+        "title": "회의실 예약",
+        "disabled_notify": {
+            "area": "이 지역의 회의실은 사용 불가",
+            "room": "이 회의실은 사용 불가"
+        },
+        "filter": {
+            "all": "전체"
+        }
+    },
+    "detail": {
+        "title": "회의실",
+        "untitled": "제목 없음",
+        "form": {
+            "date": "날짜",
+            "meeting_topic": "회의 주제",
+            "meeting_topic_placeholder": "주제를 입력하세요",
+			"form_validate_notify": {
+				"meeting_topic_missing": "회의 주제를 입력해야 합니다!"
+			}
+        },
+		"rep_form": {
+			"title": "반복 회의 예약",
+			"rep_interval": "반복 간격",
+			"rep_interval_2": "주",
+			"rep_end_date": "종료 날짜",
+			"rep_end_date_placeholder": "날짜를 클릭하여 선택하세요",
+			"rep_form_validate_notify": {
+				"rep_interval_fail": "반복 주 수 형식 오류",
+				"rep_day_missing": "반복 날짜를 최소한 하나 선택해야 합니다",
+				"rep_end_date_missing": "종료 날짜를 선택하세요"
+			}
+		},
+        "validate_notify": {
+            "disabled": "이 회의실은 사용 불가",
+            "full": "사용 가능한 시간이 없습니다",
+            "rejected": "이 회의실에 접근할 권한이 없습니다. 홈으로 돌아갑니다...",
+            "notAvailable": "사용 가능한 시간이 없습니다"
+        },
+        "reserve_notify": {
+            "title": "알림",
+            "message": "회의를 예약하시겠습니까?",
+            "success": "회의 예약 성공!",
+            "fail": "회의 예약 실패!",
+            "repeat_success": "반복 회의 생성 성공!",
+            "repeat_fail": "반복 회의 생성 실패!"
+        },
+        "edit_notify": {
+            "title": "알림",
+            "message": "회의를 수정하시겠습니까?",
+            "success": "회의 수정 성공!",
+            "fail": "회의 수정 실패!"
+        }
+    },
+    "my": {
+        "title": "내 예약",
+        "force_end_notify": {
+            "title": "알림",
+            "message": "회의를 조기 종료하시겠습니까?",
+            "success": "회의 조기 종료 성공!",
+            "fail": "회의 조기 종료 실패!"
+        },
+        "cancel_notify": {
+            "title": "알림",
+            "message": "회의를 취소하시겠습니까?",
+            "message_repeat": "반복 회의를 취소하시겠습니까? 모든 관련 반복 회의가 삭제됩니다.",
+            "success": "회의 취소 성공!",
+            "fail": "회의 취소 실패!"
+        },
+		"rep_edit_notify": {
+		    "success": "반복 회의 수정 성공!",
+		    "fail": "반복 회의 수정 실패!"
+		},
+		"rep_edit_form": {
+			"title": "반복 회의 수정",
+			"area": "지역",
+			"room": "회의실",
+			"area_room_placeholder": "없음",
+			"meeting_topic": "회의 주제",
+			"meeting_topic_placeholder": "주제를 입력하세요",
+			"start_date": "시작 날짜",
+			"time1": "회의 시작",
+			"time2": "회의 종료",
+			"time_placeholder": "시간을 클릭하여 선택하세요",
+			"rep_interval": "반복 간격",
+			"rep_interval_2": "주",
+			"rep_end_date": "종료 날짜",
+			"date_placeholder": "날짜를 클릭하여 선택하세요",
+			"rep_edit_form_validate_notify": {
+				"meeting_topic_missing": "회의 제목을 입력해야 합니다",
+				"start_date_missing": "시작 날짜를 선택해야 합니다",
+				"time1_missing": "회의 시작 시간을 선택해야 합니다",
+				"time2_missing": "회의 종료 시간을 선택해야 합니다",
+				"time1_time2_fail": "회의 시작 시간이 종료 시간보다 작아야 합니다",
+				"rep_interval_fail": "반복 주 수 형식 오류",
+				"rep_day_missing": "최소한 하나의 반복 날짜를 선택해야 합니다",
+				"rep_end_date_missing": "종료 날짜를 선택해야 합니다",
+				"rep_start_end_date_fail": "시작 날짜는 종료 날짜보다 빨라야 합니다"
+			}
+		}
+    },
+    "common": {
+        "loading": "로딩 중...",
+		"model_title": "알림",
+        "meeting": {
+            "overdue": "예약 불가",
+            "to_start": "시작 대기 중",
+            "in_progress": "진행 중",
+            "finished": "종료됨",
+            "canceled": "취소됨"
+        },
+        "room": {
+            "available": "예약 가능",
+            "disabled": "사용 불가",
+            "full": "예약 완료",
+            "not_in_service": "서비스 종료"
+        },
+        "button": {
+            "confirm": "확인",
+            "cancel": "취소",
+            "reserve": "예약",
+            "repeated_reserve": "반복 예약",
+            "edit": "수정",
+            "force_end": "조기 종료"
+        },
+        "day": {
+            "yesterday": "어제",
+            "today": "오늘",
+            "tomorrow": "내일"
+        },
+        "week": {
+            "monday": "월요일",
+            "tuesday": "화요일",
+            "wednesday": "수요일",
+            "thursday": "목요일",
+            "friday": "금요일",
+            "saturday": "토요일",
+            "sunday": "일요일"
+        },
+        "time": {
+            "hour": "시간",
+            "hours": "시간",
+            "minute": "분",
+            "minutes": "분",
+            "second": "초",
+            "seconds": "초"
+        }
+    }
+}
