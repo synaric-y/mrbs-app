@@ -1,0 +1,158 @@
+{
+    "login": {
+        "hello": "Hello,",
+        "welcome": "Welcome to the Meeting Room Reservation System",
+        "login_notify": {
+            "success": "Login Success",
+            "fail": "Login Failed"
+        }
+    },
+    "index": {
+        "title": "Reservation",
+        "disabled_notify": {
+            "area": "Meeting rooms in this area are unavailable",
+            "room": "This meeting room is unavailable"
+        },
+        "filter": {
+            "all": "All"
+        }
+    },
+    "detail": {
+        "title": "Meeting Room",
+        "untitled": "Untitled",
+        "form": {
+            "date": "Date",
+            "meeting_topic": "Meeting Topic",
+            "meeting_topic_placeholder": "Please enter",
+			"form_validate_notify": {
+				"meeting_topic_missing": "Meeting topic is required"
+			}
+        },
+		"rep_form":{
+			"title": "Reserve Repeated Meeting",
+			"rep_interval": "Repeat interval is",
+			"rep_interval_2": "weeks",
+			"rep_end_date": "End Date",
+			"rep_end_date_placeholder": "Select a date",
+			"rep_form_validate_notify": {
+				"rep_interval_fail": "Invalid repeat interval format",
+				"rep_day_missing": "Please select at least one repeat day",
+				"rep_end_date_missing": "End date is required"
+			}
+		},
+        "validate_notify": {
+            "disabled": "This meeting room is unavailable",
+            "full": "No available time slots",
+            "rejected": "You do not have permission to access this meeting room, redirecting to the homepage...",
+            "notAvailable": "No available time slots found"
+        },
+        "reserve_notify": {
+            "title": "Notice",
+            "message": "Confirm reservation?",
+            "success": "Reserved successfully!",
+            "fail": "Reservation failed!",
+            "repeat_success": "Repeated meeting reserved successfully!",
+            "repeat_fail": "Repeated meeting reservation failed!"
+        },
+        "edit_notify": {
+            "title": "Notice",
+            "message": "Confirm edit?",
+            "success": "Edit successfully!",
+            "fail": "Edit failed!"
+        }
+    },
+    "my": {
+        "title": "My Reservations",
+        "force_end_notify": {
+            "title": "Notice",
+            "message": "Confirm ending the meeting early?",
+            "success": "Meeting successfully ended early!",
+            "fail": "Failed to end meeting early!"
+        },
+        "cancel_notify": {
+            "title": "Notice",
+            "message": "Confirm canceling the meeting?",
+            "message_repeat": "Confirm canceling the repeated meeting? All revelant repeated meetings will be deleted.",
+            "success": "Meeting successfully canceled!",
+            "fail": "Failed to cancel the meeting!"
+        },
+		"rep_edit_notify": {
+		    "success": "Repeated meeting successfully edited!",
+		    "fail": "Failed to edit the repeated meeting!"
+		},
+		"rep_edit_form":{
+			"title": "Edit Repeated Meeting",
+			"area": "Area",
+			"room": "Room",
+			"area_room_placeholder": "None",
+			"meeting_topic": "Topic",
+			"meeting_topic_placeholder":"Please enter",
+			"start_date": "Start Date",
+			"time1": "Meeting Start",
+			"time2": "Meeting End",
+			"time_placeholder": "Select a time",
+			"rep_interval": "Repeat interval is",
+			"rep_interval_2": "weeks",
+			"rep_end_date": "End Date",
+			"date_placeholder": "Select a date",
+			"rep_edit_form_validate_notify": {
+				"meeting_topic_missing": "Meeting topic is required",
+				"start_date_missing": "Start date is required",
+				"time1_missing": "Start time is required",
+				"time2_missing": "End time is required",
+				"time1_time2_fail": "Start time must be before End time",
+				"rep_interval_fail": "Invalid repeat interval format",
+				"rep_day_missing": "Please select at least one repeat day",
+				"rep_end_date_missing": "End date is required",
+				"rep_start_end_date_fail": "Start date must be before End date"
+			}
+		}
+    },
+    "common": {
+        "loading": "Loading...",
+		"model_title": "Notice",
+        "meeting": {
+            "overdue": "Unavailable",
+            "to_start": "To Start",
+            "in_progress": "In Progress",
+            "finished": "Finished",
+            "canceled": "Canceled"
+        },
+        "room": {
+            "available": "Available",
+            "disabled": "Unavailable",
+            "full": "Full",
+            "not_in_service": "Closed"
+        },
+        "button": {
+            "confirm": "Confirm",
+            "cancel": "Cancel",
+            "reserve": "Reserve",
+            "repeated_reserve": "Repeated Reserve",
+            "edit": "Edit",
+            "force_end": "Force End"
+        },
+        "day": {
+            "yesterday": "Yesterday",
+            "today": "Today",
+            "tomorrow": "Tomorrow"
+        },
+        "week": {
+			"monday": "Mon",
+			"tuesday": "Tue",
+			"wednesday": "Wed",
+			"thursday": "Thu",
+			"friday": "Fri",
+			"saturday": "Sat",
+			"sunday": "Sun"
+        },
+        "time": {
+            "hour": "h",
+            "hours": "h",
+            "minute": "min",
+            "minutes": "min",
+            "second": "s",
+            "seconds": "s"
+        }
+    }
+}

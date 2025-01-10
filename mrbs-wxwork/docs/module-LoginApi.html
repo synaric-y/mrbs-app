@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>LoginApi - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-DateTime.html">DateTime</a><ul class='methods'><li data-type='method'><a href="module-DateTime.html#~ceilScaleTs">ceilScaleTs</a></li><li data-type='method'><a href="module-DateTime.html#~dayText">dayText</a></li><li data-type='method'><a href="module-DateTime.html#~dayTextTs">dayTextTs</a></li><li data-type='method'><a href="module-DateTime.html#~fl2ts">fl2ts</a></li><li data-type='method'><a href="module-DateTime.html#~generateTsSequence">generateTsSequence</a></li><li data-type='method'><a href="module-DateTime.html#~getDateListOfNLength">getDateListOfNLength</a></li><li data-type='method'><a href="module-DateTime.html#~hhmm2fl">hhmm2fl</a></li><li data-type='method'><a href="module-DateTime.html#~nearestScaleTs">nearestScaleTs</a></li><li data-type='method'><a href="module-DateTime.html#~ts2hhmm">ts2hhmm</a></li><li data-type='method'><a href="module-DateTime.html#~tsDiff2hms">tsDiff2hms</a></li><li data-type='method'><a href="module-DateTime.html#~ymdFormat">ymdFormat</a></li><li data-type='method'><a href="module-DateTime.html#~ymdFormatTs">ymdFormatTs</a></li></ul></li><li></li><li></li><li><a href="module-LoginApi.html">LoginApi</a><ul class='methods'><li data-type='method'><a href="module-LoginApi.html#.wxLoginApi">wxLoginApi</a></li><li data-type='method'><a href="module-LoginApi.html#.wxOauth2Url">wxOauth2Url</a></li></ul></li><li><a href="module-MeetingFormat.html">MeetingFormat</a><ul class='methods'><li data-type='method'><a href="module-MeetingFormat.html#~formatMeetings">formatMeetings</a></li></ul></li><li><a href="module-MeetingOperApi.html">MeetingOperApi</a><ul class='methods'><li data-type='method'><a href="module-MeetingOperApi.html#~wrappedCancelMeetingById">wrappedCancelMeetingById</a></li><li data-type='method'><a href="module-MeetingOperApi.html#~wrappedEditRepeatedMeeting">wrappedEditRepeatedMeeting</a></li><li data-type='method'><a href="module-MeetingOperApi.html#~wrappedEditSingleMeeting">wrappedEditSingleMeeting</a></li><li data-type='method'><a href="module-MeetingOperApi.html#~wrappedForceEndMeetingById">wrappedForceEndMeetingById</a></li><li data-type='method'><a href="module-MeetingOperApi.html#~wrappedGetMeetingById">wrappedGetMeetingById</a></li><li data-type='method'><a href="module-MeetingOperApi.html#~wrappedReserveRepeatedMeeting">wrappedReserveRepeatedMeeting</a></li><li data-type='method'><a href="module-MeetingOperApi.html#~wrappedReserveSingleMeeting">wrappedReserveSingleMeeting</a></li></ul></li><li><a href="module-MeetingQueryApi.html">MeetingQueryApi</a><ul class='methods'><li data-type='method'><a href="module-MeetingQueryApi.html#~wrappedGetMeetings">wrappedGetMeetings</a></li><li data-type='method'><a href="module-MeetingQueryApi.html#~wrappedGetMeetingsByCreator">wrappedGetMeetingsByCreator</a></li><li data-type='method'><a href="module-MeetingQueryApi.html#~wrappedGetMeetingsByRoomId">wrappedGetMeetingsByRoomId</a></li></ul></li><li></li><li><a href="module-Timeline.html">Timeline</a><ul class='methods'><li data-type='method'><a href="module-Timeline.html#.findNextLargerTime">findNextLargerTime</a></li><li data-type='method'><a href="module-Timeline.html#.findPreviousSmallerTime">findPreviousSmallerTime</a></li><li data-type='method'><a href="module-Timeline.html#~fullCheck">fullCheck</a></li><li data-type='method'><a href="module-Timeline.html#~isBothValid">isBothValid</a></li><li data-type='method'><a href="module-Timeline.html#~isCorrectOrder">isCorrectOrder</a></li><li data-type='method'><a href="module-Timeline.html#~isLeftHandleValid">isLeftHandleValid</a></li><li data-type='method'><a href="module-Timeline.html#~isRightHandleValid">isRightHandleValid</a></li></ul></li><li></li><li><a href="module-UI.html">UI</a><ul class='methods'><li data-type='method'><a href="module-UI.html#.showModal">showModal</a></li><li data-type='method'><a href="module-UI.html#.showToast">showToast</a></li><li data-type='method'><a href="module-UI.html#~gotoPage">gotoPage</a></li><li data-type='method'><a href="module-UI.html#~navigateBack">navigateBack</a></li><li data-type='method'><a href="module-UI.html#~returnToIndex">returnToIndex</a></li></ul></li><li></li></ul><h3>Global</h3><ul><li><a href="global.html#MEETING_EXPIRED">MEETING_EXPIRED</a></li><li><a href="global.html#MEETING_FINISHED">MEETING_FINISHED</a></li><li><a href="global.html#MEETING_IN_PROGRESS">MEETING_IN_PROGRESS</a></li><li><a href="global.html#MEETING_TO_START">MEETING_TO_START</a></li><li><a href="global.html#SEC_PER_HOUR">SEC_PER_HOUR</a></li><li><a href="global.html#SEC_PER_MINUTE">SEC_PER_MINUTE</a></li></ul>
+    
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">LoginApi</h1>
+    
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        
+    
+</header>
+
+<article>
+    
+        <div class="container-overview">
+        
+            
+
+            
+        
+        </div>
+    
+
+    
+
+    
+
+    
+    
+    
+
+     
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    <h4 class="name" id=".wxLoginApi"><span class="type-signature type-signature-static">(static) </span>wxLoginApi<span class="signature">(code)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>企业微信登录后台api</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="api_login.js.html">api/login.js</a>, <a href="api_login.js.html#line9">line 9</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5 class="h5-parameters">Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>code</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>前台回调之后得到的code</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".wxOauth2Url"><span class="type-signature type-signature-static">(static) </span>wxOauth2Url<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>接收拼接url</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="api_login.js.html">api/login.js</a>, <a href="api_login.js.html#line19">line 19</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.4</a> on Mon Dec 02 2024 16:00:21 GMT+0800 (中国标准时间) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+
+
+</body>
+</html>

@@ -1,0 +1,158 @@
+{
+    "login": {
+        "hello": "你好，",
+        "welcome": "欢迎来到会议室预约系统",
+        "login_notify": {
+            "success": "登录成功",
+            "fail": "登录失败"
+        }
+    },
+    "index": {
+        "title": "预约会议室",
+        "disabled_notify": {
+            "area": "此区域的会议室不可用",
+            "room": "此会议室不可用"
+        },
+        "filter": {
+            "all": "全部"
+        }
+    },
+    "detail": {
+        "title": "会议室",
+        "untitled": "未命名",
+        "form": {
+            "date": "日期",
+            "meeting_topic": "会议主题",
+            "meeting_topic_placeholder": "请输入",
+			"form_validate_notify": {
+				"meeting_topic_missing": "必须输入会议主题！"
+			}
+        },
+		"rep_form":{
+			"title": "预定循环会议",
+			"rep_interval": "重复间隔为",
+			"rep_interval_2": "周",
+			"rep_end_date": "结束日期",
+			"rep_end_date_placeholder": "点击选择日期",
+			"rep_form_validate_notify": {
+				"rep_interval_fail": "重复周数格式错误",
+				"rep_day_missing": "请选择至少一个重复日期",
+				"rep_end_date_missing": "请选择结束日期"
+			}
+		},
+        "validate_notify": {
+            "disabled": "此会议室不可用",
+            "full": "找不到可用时间",
+            "rejected": "您无权访问此会议室，即将返回首页...",
+            "notAvailable": "找不到可用时间"
+        },
+        "reserve_notify": {
+            "title": "提示",
+            "message": "确认预定会议?",
+            "success": "会议预订成功！",
+            "fail": "会议预订失败！",
+            "repeat_success": "循环会议创建成功！",
+            "repeat_fail": "循环会议创建失败！"
+        },
+        "edit_notify": {
+            "title": "提示",
+            "message": "确认修改会议?",
+            "success": "会议修改成功！",
+            "fail": "会议修改失败！"
+        }
+    },
+    "my": {
+        "title": "我的预约",
+        "force_end_notify": {
+            "title": "提示",
+            "message": "确认提前结束会议?",
+            "success": "提前结束会议成功！",
+            "fail": "提前结束会议失败！"
+        },
+        "cancel_notify": {
+            "title": "提示",
+            "message": "确认取消会议?",
+            "message_repeat": "确认取消循环会议?所有与之关联的循环会议都会被删除。",
+            "success": "会议取消成功！",
+            "fail": "会议取消失败！"
+        },
+		"rep_edit_notify": {
+		    "success": "循环会议编辑成功！",
+		    "fail": "循环会议编辑失败！"
+		},
+		"rep_edit_form":{
+			"title": "编辑循环会议",
+			"area": "区域",
+			"room": "会议室",
+			"area_room_placeholder": "无",
+			"meeting_topic": "会议主题",
+			"meeting_topic_placeholder":"请输入",
+			"start_date": "开始日期",
+			"time1": "会议开始",
+			"time2": "会议结束",
+			"time_placeholder": "点击选择时间",
+			"rep_interval": "重复间隔为",
+			"rep_interval_2": "周",
+			"rep_end_date": "结束日期",
+			"date_placeholder": "点击选择日期",
+			"rep_edit_form_validate_notify": {
+				"meeting_topic_missing": "会议标题不能为空",
+				"start_date_missing": "请选择开始日期",
+				"time1_missing": "请选择会议开始时间",
+				"time2_missing": "请选择会议结束时间",
+				"time1_time2_fail": "会议开始时间必须小于结束时间",
+				"rep_interval_fail": "重复周数格式错误",
+				"rep_day_missing": "必须至少选择一个重复日期",
+				"rep_end_date_missing": "请选择结束日期",
+				"rep_start_end_date_fail": "开始日期必须小于结束日期"
+			}
+		}
+    },
+    "common": {
+        "loading": "加载中...",
+		"model_title": "提示",
+        "meeting": {
+            "overdue": "不可约",
+            "to_start": "待开始",
+            "in_progress": "进行中",
+            "finished": "已结束",
+            "canceled": "已取消"
+        },
+        "room": {
+            "available": "可预定",
+            "disabled": "不可用",
+            "full": "已约满",
+            "not_in_service": "已关闭"
+        },
+        "button": {
+            "confirm": "确认",
+            "cancel": "取消",
+            "reserve": "预定",
+            "repeated_reserve": "循环定时预定",
+            "edit": "编辑",
+            "force_end": "提前结束"
+        },
+        "day": {
+            "yesterday": "昨天",
+            "today": "今天",
+            "tomorrow": "明天"
+        },
+        "week": {
+            "monday": "周一",
+            "tuesday": "周二",
+            "wednesday": "周三",
+            "thursday": "周四",
+            "friday": "周五",
+            "saturday": "周六",
+            "sunday": "周日"
+        },
+        "time": {
+            "hour": "小时",
+            "hours": "小时",
+            "minute": "分钟",
+            "minutes": "分钟",
+            "second": "秒",
+            "seconds": "秒"
+        }
+    }
+}
