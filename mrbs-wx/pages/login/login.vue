@@ -19,6 +19,10 @@ wx.login({
 				  })
 				  .catch(e=>{
 					  console.log(e);
+					  // 暂时不校验登录
+					  uni.redirectTo({
+					  	url:'/pages/index/index'
+					  })
 				  })
 			      
 			    } else {
