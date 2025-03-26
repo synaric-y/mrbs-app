@@ -135,42 +135,12 @@
 		else if (roomDisabled)
 			showToast(i18n.global.t('index.disabled_notify.room'));
 		else {
-			console.log('测试进入弹窗')
-			// 显示输入弹窗
-			uni.showModal({
-				title: '请输入手机号',
-				content: '',
-				editable: true,
-				success: (res) => {
-					if (res.confirm) {
-						const userInput = res.content; // 这里可以处理输入的内容
-						if (!userInput) {
-							showToast('请输入手机号');
-							return;
-						}
-
-						if (!validatePhoneNumber(userInput)) {
-							showToast('请输入有效的手机号');
-							return;
-						}
-
-						// 跳转到会议详情
-						gotoPage('../detail/detail', {
-							room_id: room_id,
-							time: currentDate.value.getTime(),
-							area_name: selectedArea.value,
-							area_id: area_id,
-							user_info: userInput
-						});
-					}
-				},
+			gotoPage('../detail/detail',{
+				room_id: room_id,
+				time: currentDate.value.getTime(),
+				area_name: selectedArea.value,
+				area_id: area_id
 			})
-			// gotoPage('../detail/detail',{
-			// 	room_id: room_id,
-			// 	time: currentDate.value.getTime(),
-			// 	area_name: selectedArea.value,
-			// 	area_id: area_id
-			// })
 		}
 	}
 

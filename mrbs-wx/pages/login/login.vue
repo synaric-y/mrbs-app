@@ -7,9 +7,6 @@ wx.login({
 			  success (res) {
 			    if (res.code) {
 			      //发起网络请求
-				  
-				  
-				  
 				  wxLoginApi(res.code)
 				  .then(res=>{
 					  console.log(res);
@@ -19,10 +16,6 @@ wx.login({
 				  })
 				  .catch(e=>{
 					  console.log(e);
-					  // 暂时不校验登录
-					  uni.redirectTo({
-					  	url:'/pages/index/index'
-					  })
 				  })
 			      
 			    } else {
